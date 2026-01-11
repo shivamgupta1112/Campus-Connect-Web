@@ -1,9 +1,14 @@
-import react from "react";
+import React from "react";
 import Header from "./components/Header";
+import Hero from "./components/Hero";
+
 const App = () => {
   return (
-    <div>
+    <div className="bg-white">
       <Header />
+      <main>
+        <Hero />
+      </main>
     </div>
   );
 };
