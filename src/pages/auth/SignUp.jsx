@@ -1,13 +1,16 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Loader2, ArrowRight } from "lucide-react";
 import { Link } from "react-router";
 import { toast } from 'react-hot-toast';
 import InteractiveInput from "../../components/ui/InteractiveInput";
-const Login = () => {
+
+const SignUp = () => {
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
+        fullName: "",
         email: "",
-        password: ""
+        password: "",
+        confirmPassword: ""
     });
 
     const handleSubmit = (e) => {
@@ -17,16 +20,21 @@ const Login = () => {
         // Simulated API call
         setTimeout(() => {
             setLoading(false);
-            if (formData.email && formData.password) {
-                toast.success("Welcome back! Redirecting...");
-            } else {
+            if (!formData.fullName || !formData.email || !formData.password || !formData.confirmPassword) {
                 toast.error("Please fill in all fields");
+                return;
             }
+            if (formData.password !== formData.confirmPassword) {
+                toast.error("Passwords do not match");
+                return;
+            }
+            // Success logic here
+            toast.success("Account created successfully!");
         }, 1500);
     };
 
     return (
-        <div className="min-h-screen relative flex items-center justify-center px-4 overflow-hidden bg-slate-950">
+        <div className="min-h-screen relative flex items-center justify-center py-8 px-4 overflow-hidden bg-slate-950">
             {/* Animated Background Elements */}
             <div className="absolute inset-0 z-0">
                 <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-indigo-600/20 rounded-full blur-[120px] animate-pulse" />
@@ -45,14 +53,22 @@ const Login = () => {
                             <ArrowRight size={24} />
                         </div>
                         <h1 className="text-3xl font-bold text-white tracking-tight">
-                            Welcome Back
+                            Create Account
                         </h1>
                         <p className="text-slate-400">
-                            Enter your credentials to access your account
+                            Join the community and start your journey
                         </p>
                     </div>
 
                     <form onSubmit={handleSubmit} className="space-y-2">
+                        <InteractiveInput
+                            label="Full Name"
+                            type="text"
+                            value={formData.fullName}
+                            onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                            autoComplete="name"
+                        />
+
                         <InteractiveInput
                             label="Email Address"
                             type="email"
@@ -66,18 +82,21 @@ const Login = () => {
                             type="password"
                             value={formData.password}
                             onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                            autoComplete="current-password"
+                            autoComplete="new-password"
                             showToggle
                         />
 
-                        <div className="flex items-center justify-between text-sm pt-2">
-                            <label className="flex items-center gap-2 cursor-pointer text-slate-400 hover:text-indigo-400 transition-colors">
-                                <input type="checkbox" className="rounded bg-slate-800 border-slate-700 text-indigo-500 focus:ring-offset-slate-900" />
-                                <span>Remember me</span>
-                            </label>
-                            <Link to="#" className="text-indigo-400 hover:text-indigo-300 hover:underline transition-all">
-                                Forgot password?
-                            </Link>
+                        <InteractiveInput
+                            label="Confirm Password"
+                            type="password"
+                            value={formData.confirmPassword}
+                            onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                            autoComplete="new-password"
+                            showToggle
+                        />
+
+                        <div className="text-xs text-slate-500 px-1">
+                            By creating an account, you agree to our <Link to="/terms" className="text-indigo-400 hover:underline">Terms</Link> and <Link to="/privacy" className="text-indigo-400 hover:underline">Privacy Policy</Link>.
                         </div>
 
                         <button
@@ -92,7 +111,7 @@ const Login = () => {
                                 <Loader2 className="animate-spin" />
                             ) : (
                                 <>
-                                    Sign In
+                                    Create Account
                                     <ArrowRight size={18} className="group-hover/btn:translate-x-1 transition-transform" />
                                 </>
                             )}
@@ -101,9 +120,9 @@ const Login = () => {
 
                     <div className="mt-8 pt-6 border-t border-white/5 text-center">
                         <p className="text-slate-400 text-sm">
-                            Don't have an account?{" "}
-                            <Link to="/sign-up" className="text-white hover:text-indigo-400 font-medium transition-colors">
-                                Create an account
+                            Already have an account?{" "}
+                            <Link to="/login" className="text-white hover:text-indigo-400 font-medium transition-colors">
+                                Sign In
                             </Link>
                         </p>
                     </div>
@@ -113,4 +132,4 @@ const Login = () => {
     );
 };
 
-export default Login;
+export default SignUp;

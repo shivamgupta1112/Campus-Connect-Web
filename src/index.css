@@ -10,3 +10,20 @@ select:-webkit-autofill {
     box-shadow: 0 0 0px 1000px #1e293b inset;
     caret-color: white;
 }
+
+/* slidebar customization */
+::-webkit-scrollbar {
+    width: 2px;
+}
+
+::-webkit-scrollbar-track {
+    background: #655757;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #1e293b;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}

@@ -6,6 +6,10 @@ import Hero from "./components/Hero";
 import GetStarted from "./pages/GetStarted";
 import Login from "./pages/auth/Login";
 
+import Features from "./components/Features";
+import Footer from "./components/Footer";
+import SignUp from "./pages/auth/SignUp";
+
 const App = () => {
   return (
     <>
@@ -15,7 +19,9 @@ const App = () => {
           <Header />
           <main>
             <Hero />
+            <Features />
           </main>
+          <Footer />
         </div>} />
 
 
@@ -49,8 +55,9 @@ const App = () => {
         </div>} />
 
         <Route path="/sign-up" element={<div className="bg-white">
+          <Header />
           <main>
-            <Hero />
+            <SignUp />
           </main>
         </div>} />
 
