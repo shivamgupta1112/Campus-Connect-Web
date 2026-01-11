@@ -47,7 +47,7 @@ const Features = () => {
                     <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-6 tracking-tight">
                         Everything you need in <span className="relative inline-block">
                             <span className="text-blue-500 relative z-10">one place</span>
-                            <span className="absolute bottom-1 left-0 w-full h-3 bg-yellow-400/80 -rotate-1 z-0"></span>
+                            <span className="absolute bottom-0 left-0 w-full h-1 bg-yellow-400/80 -rotate-1 z-0"></span>
                         </span>
                     </h2>
                     <p className="text-xl text-slate-400">
@@ -80,7 +80,7 @@ const Features = () => {
 
                         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                             <Link
-                                to="/sign-up"
+                                to="/get-started"
                                 className="px-8 py-4 bg-white text-blue-600 font-bold rounded-xl hover:bg-blue-50 transition-all shadow-lg hover:shadow-xl hover:-translate-y-1"
                             >
                                 Join Campus Connect
