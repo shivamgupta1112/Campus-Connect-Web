@@ -8,21 +8,27 @@ const Footer = () => {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
                     {/* Brand Column */}
-                    <div>
-                        <Link to="/" className="flex items-center gap-2 mb-6">
-                            <img src="/logo.png" alt="Campus Connect" className="h-10 w-auto brightness-0 invert" />
-                            <span className="text-xl font-bold text-white">Campus Connect</span>
+                    <div className="flex flex-col gap-6 max-w-sm">
+                        <Link to="/" className="inline-block">
+                            <img
+                                src="/logo.png"
+                                alt="Campus Connect"
+                                className="object-contain brightness-0 invert h-36 w-auto -my-12" />
                         </Link>
-                        <p className="text-slate-400 mb-6 leading-relaxed">
-                            The all-in-one platform to find your tribe, ace your classes, and never miss an event on campus.
+
+                        <p className="text-slate-400 leading-relaxed">
+                            The all-in-one platform to find your tribe, ace your classes,
+                            and never miss an event on campus.
                         </p>
-                        <div className="flex gap-4">
+
+                        <div className="flex gap-4 mt-2">
                             <SocialLink icon={Twitter} href="#" />
                             <SocialLink icon={Instagram} href="#" />
                             <SocialLink icon={Linkedin} href="#" />
                             <SocialLink icon={Facebook} href="#" />
                         </div>
                     </div>
+
 
                     {/* Quick Links */}
                     <div>
