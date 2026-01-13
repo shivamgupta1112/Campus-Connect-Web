@@ -3,6 +3,7 @@ import { Loader2, ArrowRight } from "lucide-react";
 import { Link } from "react-router";
 import { toast } from 'react-hot-toast';
 import InteractiveInput from "../../components/ui/InteractiveInput";
+import { authApi } from "../../config/api";
 
 const SignUp = () => {
     const [loading, setLoading] = useState(false);
@@ -10,27 +11,41 @@ const SignUp = () => {
         fullName: "",
         email: "",
         password: "",
-        confirmPassword: ""
+        confirmPassword: "",
+        consent: false
     });
 
     const handleSubmit = (e) => {
         e.preventDefault();
         setLoading(true);
 
-        // Simulated API call
-        setTimeout(() => {
+        if (!formData.fullName || !formData.email || !formData.password || !formData.confirmPassword) {
+            toast.error("Please fill in all fields");
             setLoading(false);
-            if (!formData.fullName || !formData.email || !formData.password || !formData.confirmPassword) {
-                toast.error("Please fill in all fields");
-                return;
-            }
-            if (formData.password !== formData.confirmPassword) {
-                toast.error("Passwords do not match");
-                return;
-            }
-            // Success logic here
-            toast.success("Account created successfully!");
-        }, 1500);
+            return;
+        }
+        if (formData.password !== formData.confirmPassword) {
+            toast.error("Passwords do not match");
+            setLoading(false);
+            return;
+        }
+        if (!formData.consent) {
+            toast.error("You must agree to the Terms and Privacy Policy");
+            setLoading(false);
+            return;
+        }
+        authApi.post("/register", formData)
+            .then((response) => {
+                toast.success("Account created successfully!");
+                localStorage.setItem('campusconnect-token', response.data.token);
+                navigate('/get-started');
+            })
+            .catch((error) => {
+                toast.error("Failed to create account");
+            })
+            .finally(() => {
+                setLoading(false);
+            });
     };
 
     return (
@@ -95,8 +110,17 @@ const SignUp = () => {
                             showToggle
                         />
 
-                        <div className="text-xs text-slate-500 px-1">
-                            By creating an account, you agree to our <Link to="/terms" className="text-indigo-400 hover:underline">Terms</Link> and <Link to="/privacy" className="text-indigo-400 hover:underline">Privacy Policy</Link>.
+                        <div className="flex items-start gap-2 text-xs text-slate-500 px-1">
+                            <input
+                                type="checkbox"
+                                id="consent"
+                                checked={formData.consent}
+                                onChange={(e) => setFormData({ ...formData, consent: e.target.checked })}
+                                className="mt-0.5 rounded bg-slate-800 border-slate-700 text-indigo-500 focus:ring-offset-slate-900 focus:ring-indigo-500"
+                            />
+                            <label htmlFor="consent" className="cursor-pointer select-none">
+                                I agree to the <Link to="/terms" className="text-indigo-400 hover:underline">Terms of Service</Link> and <Link to="/privacy" className="text-indigo-400 hover:underline">Privacy Policy</Link>
+                            </label>
                         </div>
 
                         <button

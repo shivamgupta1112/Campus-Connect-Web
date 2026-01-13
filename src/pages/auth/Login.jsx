@@ -1,9 +1,12 @@
 import { useState, useEffect } from "react";
 import { Loader2, ArrowRight } from "lucide-react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { toast } from 'react-hot-toast';
 import InteractiveInput from "../../components/ui/InteractiveInput";
+import { authApi } from "../../config/api";
+
 const Login = () => {
+    const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
         email: "",
@@ -14,15 +17,21 @@ const Login = () => {
         e.preventDefault();
         setLoading(true);
 
-        // Simulated API call
-        setTimeout(() => {
-            setLoading(false);
-            if (formData.email && formData.password) {
-                toast.success("Welcome back! Redirecting...");
-            } else {
-                toast.error("Please fill in all fields");
-            }
-        }, 1500);
+        authApi.post("/login", formData)
+            .then((response) => {
+                if (response.data && response.data.token) {
+                    localStorage.setItem('campusconnect-token', response.data.token);
+                    toast.success("Welcome back! Redirecting...");
+                    navigate('/get-started');
+                }
+            })
+            .catch((error) => {
+                toast.error("Invalid credentials");
+                console.error("Login failed:", error);
+            })
+            .finally(() => {
+                setLoading(false);
+            });
     };
 
     return (

@@ -5,7 +5,7 @@ const GetStarted = () => {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
     useEffect(() => {
-        const token = localStorage.getItem('campusconnecttoken');
+        const token = localStorage.getItem('campusconnect-token');
         // ToDo: check token validity after 24 hours
         if (!token) {
             localStorage.clear();
