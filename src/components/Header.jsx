@@ -32,10 +32,10 @@ const Header = () => {
 
                         {/* Desktop Navigation */}
                         <nav className="hidden md:flex items-center space-x-1">
-                            {['Home', 'About', 'Contact'].map((item) => (
+                            {['Home', 'About', 'Contact University'].map((item) => (
                                 <Link
                                     key={item}
-                                    to={item === 'Home' ? '/' : `/${item.toLowerCase()}`}
+                                    to={item === 'Home' ? '/' : `/${item.split(' ')[0].toLowerCase()}`}
                                     onClick={() => navigate(item === 'Home' ? '/' : `/${item.toLowerCase()}`)}
                                     className="px-4 py-2 text-sm font-medium text-white hover:text-blue-600 hover:bg-blue-50/50 transition-all duration-200"
                                 >
@@ -74,10 +74,10 @@ const Header = () => {
                     <div className="absolute top-full left-0 w-full p-4 md:hidden">
                         <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden animate-in slide-in-from-top-2">
                             <nav className="flex flex-col p-2">
-                                {['Home', 'About', 'Contact'].map((item) => (
+                                {['Home', 'About', 'Contact University'].map((item) => (
                                     <Link
                                         key={item}
-                                        to={item === 'Home' ? '/' : `/${item.toLowerCase()}`}
+                                        to={item === 'Home' ? '/' : `/${item.split(' ')[0].toLowerCase()}`}
                                         className="text-base font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 px-4 py-3 rounded-xl transition-colors"
                                         onClick={() => setIsMenuOpen(false)}
                                     >

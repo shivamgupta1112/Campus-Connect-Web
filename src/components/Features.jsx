@@ -89,7 +89,7 @@ const Features = () => {
                                 to="/contact"
                                 className="px-8 py-4 bg-transparent border-2 border-blue-400 text-white font-bold rounded-xl hover:bg-blue-700/50 hover:border-blue-300 transition-all hover:-translate-y-1"
                             >
-                                Contact Admin
+                                Contact University
                             </Link>
                         </div>
                     </div>
