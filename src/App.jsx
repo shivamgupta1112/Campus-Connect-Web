@@ -5,6 +5,8 @@ import Header from "./components/Header";
 import Hero from "./components/Hero";
 import GetStarted from "./pages/GetStarted";
 import Login from "./pages/auth/Login";
+import ForgetPassword from "./pages/auth/ForgetPassword";
+import ResetPassword from "./pages/auth/ResetPassword";
 
 import Features from "./components/Features";
 import Footer from "./components/Footer";
@@ -58,6 +60,20 @@ const App = () => {
           <Header />
           <main>
             <SignUp />
+          </main>
+        </div>} />
+
+        <Route path="/forgot-password" element={<div className="bg-white">
+          <Header />
+          <main>
+            <ForgetPassword />
+          </main>
+        </div>} />
+
+        <Route path="/reset-password" element={<div className="bg-white">
+          <Header />
+          <main>
+            <ResetPassword />
           </main>
         </div>} />
 
