@@ -10,7 +10,6 @@ import ResetPassword from "./pages/auth/ResetPassword";
 
 import Features from "./components/Features";
 import Footer from "./components/Footer";
-import SignUp from "./pages/auth/SignUp";
 
 const App = () => {
   return (
@@ -53,13 +52,6 @@ const App = () => {
           <Header />
           <main>
             <Login />
-          </main>
-        </div>} />
-
-        <Route path="/sign-up" element={<div className="bg-white">
-          <Header />
-          <main>
-            <SignUp />
           </main>
         </div>} />
 
