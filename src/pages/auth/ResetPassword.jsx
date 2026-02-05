@@ -44,7 +44,7 @@ const ResetPassword = () => {
                 setTimeout(() => navigate("/login"), 3000);
             })
             .catch((error) => {
-                const message = error.response?.data?.message || (typeof error.response?.data === 'string' ? error.response.data : null) || "Failed to reset password";
+                const message = error.response?.data?.error || error.response?.data?.message || (typeof error.response?.data === 'string' ? error.response.data : null) || "Failed to reset password";
                 toast.error(message);
                 console.error("Reset password failed:", error);
             })

@@ -2,7 +2,7 @@ import axios from 'axios';
 
 const AUTH_URL =
     import.meta.env.DEV
-        ? "http://localhost:8080/api/auth"
+        ? "http://localhost:5000/api/auth"
         : import.meta.env.VITE_VERCEL_ENV === "preview"
             ? import.meta.env.VITE_PREVIEW_AUTH_URL
             : import.meta.env.VITE_PROD_AUTH_URL;

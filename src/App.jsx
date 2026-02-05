@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router";
+import { Routes, Route } from "react-router";
 import { Toaster } from "react-hot-toast";
 import Header from "./components/Header";
 import Hero from "./components/Hero";
@@ -40,7 +40,7 @@ const App = () => {
           </main>
         </div>} />
 
-        <Route path="/get-started" element={<div className="bg-white">
+        <Route path="/get-started/dashboard" element={<div className="bg-white">
           <Header />
           <main>
             <GetStarted />

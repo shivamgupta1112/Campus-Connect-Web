@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Loader2, ArrowRight } from "lucide-react";
 import { Link, useNavigate } from "react-router";
 import { toast } from 'react-hot-toast';
@@ -18,11 +18,11 @@ const Login = () => {
         setLoading(true);
 
         authApi.post("/login", formData)
-            .then((response) => {
+        .then((response) => {
                 if (response.data && response.data.token) {
                     localStorage.setItem('campusconnect-token', response.data.token);
                     toast.success("Welcome back! Redirecting...");
-                    navigate('/get-started');
+                    navigate(`/get-started/dashboard?${response.data.token}`);
                 }
             })
             .catch((error) => {
