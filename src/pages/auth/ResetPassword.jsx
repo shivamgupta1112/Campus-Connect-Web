@@ -3,7 +3,7 @@ import { Loader2, ArrowLeft, Key, CheckCircle2 } from "lucide-react";
 import { Link, useSearchParams, useNavigate } from "react-router";
 import { toast } from 'react-hot-toast';
 import InteractiveInput from "../../components/ui/InteractiveInput";
-import { authApi } from "../../config/api";
+import { resetPassword } from "../../config/api";
 
 const ResetPassword = () => {
     const [searchParams] = useSearchParams();
@@ -34,7 +34,7 @@ const ResetPassword = () => {
 
         setLoading(true);
 
-        authApi.post("/reset-password", {
+        resetPassword({
             token,
             newPassword: formData.newPassword
         })

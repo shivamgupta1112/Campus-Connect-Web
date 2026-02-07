@@ -3,7 +3,7 @@ import { Loader2, ArrowRight } from "lucide-react";
 import { Link, useNavigate } from "react-router";
 import { toast } from 'react-hot-toast';
 import InteractiveInput from "../../components/ui/InteractiveInput";
-import { authApi } from "../../config/api";
+import { login } from "../../config/api";
 
 const Login = () => {
     const navigate = useNavigate();
@@ -17,8 +17,8 @@ const Login = () => {
         e.preventDefault();
         setLoading(true);
 
-        authApi.post("/login", formData)
-        .then((response) => {
+        login(formData)
+            .then((response) => {
                 if (response.data && response.data.token) {
                     localStorage.setItem('campusconnect-token', response.data.token);
                     toast.success("Welcome back! Redirecting...");

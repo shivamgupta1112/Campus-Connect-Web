@@ -29,8 +29,8 @@ const Hero = () => {
                     </p>
 
                     <div className="flex flex-col sm:flex-row justify-center gap-4">
-                        <Link to="/get-started" className="px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white text-lg font-semibold rounded-xl transition-all shadow-lg hover:shadow-blue-600/30 flex items-center justify-center gap-2 transform hover:-translate-y-1">
-                            Join Now
+                        <Link to={`/get-started/dashboard?token=${localStorage.getItem('campusconnect-token')}`} className='px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white text-lg font-semibold rounded-xl transition-all shadow-lg hover:shadow-blue-600/30 flex items-center justify-center gap-2 transform hover:-translate-y-1'>
+                            Get Started
                         </Link>
 
                         <Link to="/about" className="px-8 py-4 bg-white/10 hover:bg-white/20 text-white text-lg font-semibold rounded-xl backdrop-blur-sm border border-white/20 transition-all flex items-center justify-center transform hover:-translate-y-1">

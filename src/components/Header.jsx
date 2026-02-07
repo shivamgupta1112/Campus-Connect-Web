@@ -47,7 +47,7 @@ const Header = () => {
                         {/* Right Side Actions */}
                         <div className="hidden md:flex items-center gap-4">
                             <Link
-                                to="/get-started"
+                                to={`/get-started/dashboard?token=${localStorage.getItem('campusconnect-token')}`}
                                 className={`
                                     px-6 py-2.5 rounded-full text-sm font-semibold transition-all shadow-lg hover:shadow-blue-600/30 active:scale-95
                                     ${isScrolled
@@ -86,14 +86,7 @@ const Header = () => {
                                 ))}
                                 <div className="h-px bg-gray-100 my-2 mx-2"></div>
                                 <Link
-                                    to="#"
-                                    className="text-center text-sm font-medium text-gray-600 hover:text-gray-900 py-3 hover:bg-gray-50 rounded-xl mx-2"
-                                    onClick={() => setIsMenuOpen(false)}
-                                >
-                                    Sign In
-                                </Link>
-                                <Link
-                                    to="/get-started"
+                                    to={`/get-started/dashboard?token=${localStorage.getItem('campusconnect-token')}`}
                                     className="bg-blue-600 text-white text-center py-3 rounded-xl text-sm font-semibold shadow-lg shadow-blue-600/20 active:scale-95 mx-2 mb-2"
                                 >
                                     Get Started
