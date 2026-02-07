@@ -2,11 +2,14 @@ import React from 'react';
 import { useNavigate } from 'react-router';
 import { LogOut, User } from 'lucide-react';
 
+import useAuthStore from '../store/useAuthStore';
+
 const DashboardHeader = ({ userName, userRole }) => {
     const navigate = useNavigate();
+    const logout = useAuthStore((state) => state.logout);
 
     const handleLogout = () => {
-        localStorage.clear();
+        logout();
         navigate('/login');
     };
 

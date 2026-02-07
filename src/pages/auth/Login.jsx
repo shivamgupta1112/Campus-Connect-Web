@@ -1,17 +1,25 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Loader2, ArrowRight } from "lucide-react";
 import { Link, useNavigate } from "react-router";
 import { toast } from 'react-hot-toast';
 import InteractiveInput from "../../components/ui/InteractiveInput";
+import useAuthStore from "../../store/useAuthStore";
 import { login } from "../../config/api";
 
 const Login = () => {
     const navigate = useNavigate();
+    const { setAuth, isAuthenticated } = useAuthStore();
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
         email: "",
         password: ""
     });
+
+    useEffect(() => {
+        if (isAuthenticated) {
+            navigate('/get-started/dashboard', { replace: true });
+        }
+    }, [isAuthenticated, navigate]);
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -20,9 +28,14 @@ const Login = () => {
         login(formData)
             .then((response) => {
                 if (response.data && response.data.token) {
-                    localStorage.setItem('campusconnect-token', response.data.token);
+                    const { token, user, role } = response.data;
+                    const userData = user ? { ...user, role: role || user.role } : null;
+
+                    setAuth(userData, token);
+
                     toast.success("Welcome back! Redirecting...");
-                    navigate(`/get-started/dashboard?${response.data.token}`);
+                    // No need to pass token in URL anymore
+                    navigate(`/get-started/dashboard`);
                 }
             })
             .catch((error) => {

@@ -30,14 +30,50 @@ const attachToken = (config) => {
 };
 
 // Create axios instances
-const authApi = axios.create({ baseURL: AUTH_URL });
-const collegeApi = axios.create({ baseURL: COLLEGE_URL });
-const userApi = axios.create({ baseURL: USER_URL });
+// Create axios instances
+const authApi = axios.create({ baseURL: AUTH_URL, withCredentials: true });
+const collegeApi = axios.create({ baseURL: COLLEGE_URL, withCredentials: true });
+const userApi = axios.create({ baseURL: USER_URL, withCredentials: true });
 
 // Attach interceptors
+// Attach token interceptor
 authApi.interceptors.request.use(attachToken);
 collegeApi.interceptors.request.use(attachToken);
 userApi.interceptors.request.use(attachToken);
+
+// Logging Interceptors (Dev only)
+if (import.meta.env.DEV) {
+    const logRequest = (config) => {
+        console.groupCollapsed(`🚀 API Request: ${config.method.toUpperCase()} ${config.url}`);
+        console.log('Headers:', config.headers);
+        if (config.data) console.log('Body:', config.data);
+        if (config.params) console.log('Params:', config.params);
+        console.groupEnd();
+        return config;
+    };
+
+    const logResponse = (response) => {
+        console.groupCollapsed(`✅ API Response: ${response.status} ${response.config.url}`);
+        console.log('Data:', response.data);
+        console.groupEnd();
+        return response;
+    };
+
+    const logError = (error) => {
+        console.groupCollapsed(`❌ API Error: ${error.message}`);
+        if (error.response) {
+            console.log('Status:', error.response.status);
+            console.log('Data:', error.response.data);
+        }
+        console.groupEnd();
+        return Promise.reject(error);
+    };
+
+    [authApi, collegeApi, userApi].forEach(api => {
+        api.interceptors.request.use(logRequest);
+        api.interceptors.response.use(logResponse, logError);
+    });
+}
 
 // Auth API Methods
 export const login = (credentials) => authApi.post('/login', credentials);
@@ -46,6 +82,8 @@ export const validateToken = () => authApi.get('/validate-token');
 export const verifyEmail = (data) => authApi.post('/verify-email', data);
 export const forgotPassword = (email) => authApi.post('/forgot-password', { email });
 export const resetPassword = (data) => authApi.post('/reset-password', data);
+export const refreshToken = () => authApi.get('/refresh');
+export const logout = () => authApi.get('/logout');
 
 // College API Methods
 export const getColleges = (params) => collegeApi.get('/', { params });

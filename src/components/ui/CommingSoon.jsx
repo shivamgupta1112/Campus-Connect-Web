@@ -17,7 +17,7 @@ const CommingSoon = () => {
 
                 {/* Back Button */}
                 <button
-                    onClick={() => navigate(-1)}
+                    onClick={() => navigate('/')}
                     className="absolute top-6 left-6 p-2 rounded-full hover:bg-gray-100/50 text-gray-600 transition-all group"
                     aria-label="Go back"
                 >
@@ -50,7 +50,7 @@ const CommingSoon = () => {
 
                     <div className="pt-6 w-full max-w-xs">
                         <button
-                            onClick={() => navigate(-1)}
+                            onClick={() => navigate('/')}
                             className="w-full py-3 px-6 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center gap-2"
                         >
                             <ArrowLeft size={18} />
