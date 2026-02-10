@@ -1,56 +1,20 @@
 import React, { useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router';
+import { useNavigate } from 'react-router';
 import { toast } from 'react-hot-toast';
 import useAuthStore from '../store/useAuthStore';
-import UniversityAdminDashboard from './dashboards/UniversityAdminDashboard';
-import CollegeDirectorDashboard from './dashboards/CollegeDirectorDashboard';
-import DepartmentHeadDashboard from './dashboards/DepartmentHeadDashboard';
-import FacultyDashboard from './dashboards/FacultyDashboard';
-import StudentDashboard from './dashboards/StudentDashboard';
+import { LogOut, User, Home, BookOpen, Settings, Bell, Search } from 'lucide-react';
 
 const GetStarted = () => {
     const navigate = useNavigate();
-    const [searchParams, setSearchParams] = useSearchParams();
-
-    const {
-        user,
-        isAuthenticated,
-        isLoading,
-        error,
-        checkAuth,
-        logout
-    } = useAuthStore();
+    const { user, isAuthenticated, isLoading, error, checkAuth, logout } = useAuthStore();
 
     useEffect(() => {
-        const initAuth = async () => {
-            const urlToken = searchParams.get('token');
-
-            if (urlToken) {
-                // Token from URL (e.g. login redirect)
-                localStorage.setItem('campusconnect-token', urlToken);
-
-                // Clear token from URL to keep it clean
-                const newParams = new URLSearchParams(searchParams);
-                newParams.delete('token');
-                setSearchParams(newParams);
-
-                // Force validation for new token
-                // We manually reset auth state first to ensure checkAuth runs
-                useAuthStore.setState({ isAuthenticated: false });
-                await checkAuth();
-            } else {
-                // Normal navigation or refresh
-                await checkAuth();
-            }
-        };
-
-        initAuth();
-    }, [checkAuth, searchParams, setSearchParams]);
+        checkAuth();
+    }, [checkAuth]);
 
     // Handle authentication failures or missing session
     useEffect(() => {
         if (!isLoading && !isAuthenticated && !localStorage.getItem('campusconnect-token')) {
-            // No token at all
             navigate('/login');
         }
     }, [isLoading, isAuthenticated, navigate]);
@@ -58,10 +22,10 @@ const GetStarted = () => {
     // Loading state
     if (isLoading) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
-                <div className="text-center">
-                    <div className="inline-block animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-600 mb-4"></div>
-                    <p className="text-xl text-gray-700 font-semibold">Validating session...</p>
+            <div className="min-h-screen flex items-center justify-center bg-gray-50">
+                <div className="flex flex-col items-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
+                    <p className="text-gray-500 font-medium">Loading your dashboard...</p>
                 </div>
             </div>
         );
@@ -70,79 +34,36 @@ const GetStarted = () => {
     // Error state
     if (error) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-50 to-orange-100">
-                <div className="text-center bg-white p-8 rounded-2xl shadow-xl">
-                    <div className="text-6xl mb-4">⚠️</div>
-                    <h2 className="text-2xl font-bold text-gray-800 mb-2">Authentication Error</h2>
-                    <p className="text-gray-600 mb-4">{error}</p>
+            <div className="min-h-screen flex items-center justify-center bg-gray-50">
+                <div className="max-w-md w-full bg-white p-8 rounded-2xl shadow-sm boeder border-gray-100 text-center">
+                    <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span className="text-2xl">⚠️</span>
+                    </div>
+                    <h2 className="text-xl font-bold text-gray-900 mb-2">Authentication Error</h2>
+                    <p className="text-gray-500 mb-6">{error}</p>
                     <button
                         onClick={() => {
                             logout();
                             navigate('/login');
                         }}
-                        className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-all"
+                        className="px-6 py-2.5 bg-gray-900 text-white font-medium rounded-lg hover:bg-gray-800 transition-colors w-full"
                     >
-                        Go to Login
+                        Return to Login
                     </button>
                 </div>
             </div>
         );
     }
 
-    if (!isAuthenticated) {
-        return null; // Will redirect in useEffect
-    }
+    if (!isAuthenticated) return null;
 
-    // Role-based dashboard rendering using switch case
-    const renderDashboard = () => {
-        const userRole = user?.role;
-
-        if (!userRole) {
-            logout();
-            return null;
-        }
-
-        switch (userRole?.toLowerCase()) {
-            case 'universityadmin':
-                return <UniversityAdminDashboard userInfo={user} />;
-
-            case 'collegedirector':
-                return <CollegeDirectorDashboard userInfo={user} />;
-
-            case 'departmenthead':
-                return <DepartmentHeadDashboard userInfo={user} />;
-
-            case 'faculty':
-                return <FacultyDashboard userInfo={user} />;
-
-            case 'student':
-                return <StudentDashboard userInfo={user} />;
-
-            default:
-                return (
-                    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-yellow-50 to-orange-100">
-                        <div className="text-center bg-white p-8 rounded-2xl shadow-xl">
-                            <div className="text-6xl mb-4">🤔</div>
-                            <h2 className="text-2xl font-bold text-gray-800 mb-2">Unknown Role</h2>
-                            <p className="text-gray-600 mb-4">
-                                Your role "{userRole}" is not recognized in the system.
-                            </p>
-                            <button
-                                onClick={() => {
-                                    logout();
-                                    navigate('/login');
-                                }}
-                                className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-all"
-                            >
-                                Logout
-                            </button>
-                        </div>
-                    </div>
-                );
-        }
-    };
-
-    return renderDashboard();
+    // Clean Dashboard UI for Authenticated User (No Role Specifics)
+    return (
+        <div className="min-h-screen bg-gray-50 flex font-sans">
+            Get Started
+            <button onClick={logout}>Logout</button>
+        </div>
+    );
 };
 
 export default GetStarted;

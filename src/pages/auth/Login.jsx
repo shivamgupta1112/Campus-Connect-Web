@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
-import { Loader2, ArrowRight } from "lucide-react";
+import { Loader2, ArrowRight, X } from "lucide-react";
 import { Link, useNavigate } from "react-router";
 import { toast } from 'react-hot-toast';
 import InteractiveInput from "../../components/ui/InteractiveInput";
 import useAuthStore from "../../store/useAuthStore";
-import { login } from "../../config/api";
+import { login, verifyEmail } from "../../config/api";
 
 const Login = () => {
     const navigate = useNavigate();
@@ -14,6 +14,11 @@ const Login = () => {
         email: "",
         password: ""
     });
+
+    // OTP Verification State
+    const [showOtpModal, setShowOtpModal] = useState(false);
+    const [otp, setOtp] = useState("");
+    const [otpLoading, setOtpLoading] = useState(false);
 
     useEffect(() => {
         if (isAuthenticated) {
@@ -34,16 +39,50 @@ const Login = () => {
                     setAuth(userData, token);
 
                     toast.success("Welcome back! Redirecting...");
-                    // No need to pass token in URL anymore
                     navigate(`/get-started/dashboard`);
                 }
             })
             .catch((error) => {
-                toast.error("Invalid credentials");
-                console.error("Login failed:", error);
+                if (error.response && error.response.status === 403 && error.response.data?.isVerified === false) {
+                    toast.error("Please verify your email to continue.");
+                    setShowOtpModal(true);
+                } else {
+                    toast.error(error.response?.data?.error || "Invalid credentials");
+                    console.error("Login failed:", error);
+                }
             })
             .finally(() => {
                 setLoading(false);
+            });
+    };
+
+    const handleVerifyOtp = (e) => {
+        e.preventDefault();
+        setOtpLoading(true);
+
+        verifyEmail({ email: formData.email, otp })
+            .then((response) => {
+                if (response.data && response.data.success) {
+                    toast.success("Email verified successfully! Logging you in...");
+
+                    // Auto-login after successful verification if token is provided
+                    if (response.data.token) {
+                        const { token, user, role } = response.data;
+                        const userData = user ? { ...user, role: role || user.role } : null;
+                        setAuth(userData, token);
+                        navigate(`/get-started/dashboard`);
+                    } else {
+                        // Fallback if no token provided immediately (though backend sends it)
+                        setShowOtpModal(false);
+                        handleSubmit(new Event('submit')); // Retry login
+                    }
+                }
+            })
+            .catch((error) => {
+                toast.error(error.response?.data?.error || "Verification failed");
+            })
+            .finally(() => {
+                setOtpLoading(false);
             });
     };
 
@@ -122,6 +161,56 @@ const Login = () => {
                     </form>
                 </div>
             </div>
+
+            {/* OTP Verification Modal */}
+            {showOtpModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+                    <div className="bg-slate-900 border border-white/10 rounded-2xl p-6 w-full max-w-sm shadow-2xl relative animate-in fade-in zoom-in duration-200">
+                        <button
+                            onClick={() => setShowOtpModal(false)}
+                            className="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors"
+                        >
+                            <X size={20} />
+                        </button>
+
+                        <div className="text-center mb-6">
+                            <div className="w-12 h-12 bg-indigo-500/20 rounded-full flex items-center justify-center mx-auto mb-4 text-indigo-400">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21.2 8.4c.5.38.8.97.8 1.6v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V10a2 2 0 0 1 .8-1.6l8-6a2 2 0 0 1 2.4 0l8 6Z" /><path d="m22 10-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 10" /></svg>
+                            </div>
+                            <h3 className="text-xl font-bold text-white mb-2">Verify Your Email</h3>
+                            <p className="text-sm text-slate-400">
+                                We've sent a verification code to <br />
+                                <span className="text-white font-medium">{formData.email}</span>
+                            </p>
+                        </div>
+
+                        <form onSubmit={handleVerifyOtp} className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium text-slate-300 mb-1.5">
+                                    Enter OTP Code
+                                </label>
+                                <input
+                                    type="text"
+                                    value={otp}
+                                    onChange={(e) => setOtp(e.target.value)}
+                                    placeholder="e.g. 123456"
+                                    className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all text-center tracking-widest text-lg"
+                                    maxLength={6}
+                                    required
+                                />
+                            </div>
+
+                            <button
+                                type="submit"
+                                disabled={otpLoading}
+                                className="w-full py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold transition-colors disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                            >
+                                {otpLoading ? <Loader2 size={18} className="animate-spin" /> : "Verify Email"}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

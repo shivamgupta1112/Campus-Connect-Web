@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { validateToken, refreshToken, logout as apiLogout } from '../config/api';
+import { toast } from 'react-hot-toast';
+import { validateToken, logout as apiLogout } from '../config/api';
 
 // Helper to check if token is expired
 const isTokenExpired = (token) => {
@@ -50,42 +51,20 @@ const useAuthStore = create(
                 const state = get();
                 const token = state.token || localStorage.getItem('campusconnect-token');
 
-                const attemptRefresh = async () => {
-                    try {
-                        const response = await refreshToken();
-                        if (response.data && response.data.token) {
-                            const { token: newToken, user, role } = response.data;
-                            const userData = user ? { ...user, role: role || user.role } : null;
-
-                            get().setAuth(userData, newToken);
-                            return true;
-                        }
-                    } catch (error) {
-                        // Silent fail
-                    }
-                    return false;
-                };
-
-                // 1. If local token is expired, try refresh immediately
-                if (token && isTokenExpired(token)) {
-                    const refreshed = await attemptRefresh();
-                    if (!refreshed) get().logout();
-                    return;
-                }
-
-                // 2. If authenticated cleanly, we are good
-                if (state.isAuthenticated && state.user && state.user.role) {
-                    return;
-                }
-
-                // 3. If no token, try to recover session via cookie (refresh)
+                // 1. If no token, ensure logout state and return
                 if (!token) {
-                    const refreshed = await attemptRefresh();
-                    if (!refreshed) get().logout();
+                    set({ user: null, token: null, isAuthenticated: false });
                     return;
                 }
 
-                // 4. Token exists and valid locally. Verify with backend.
+                // 2. If token is expired locally
+                if (isTokenExpired(token)) {
+                    get().logout();
+                    toast.error("Session expired. Please login again.");
+                    return;
+                }
+
+                // 3. Validate with backend
                 set({ isLoading: true, error: null });
 
                 try {
@@ -102,21 +81,18 @@ const useAuthStore = create(
                             error: null
                         });
                     } else {
-                        // Validation failed? Try refresh
-                        const refreshed = await attemptRefresh();
-                        if (!refreshed) get().logout();
+                        // Token invalid/blacklisted
+                        get().logout();
+                        toast.error("Session invalid. Please login again.");
                     }
                 } catch (error) {
                     console.error("Token validation failed:", error);
-                    // On auth error, try refresh
+
                     if (error.response?.status === 401 || error.response?.status === 403) {
-                        const refreshed = await attemptRefresh();
-                        if (!refreshed) {
-                            get().logout();
-                            set({ error: "Session expired" });
-                        }
+                        get().logout();
+                        toast.error("Session expired. Please login again.");
                     } else {
-                        // Don't logout on network error, just keep state invalid
+                        // Network error or other server error
                         set({ error: "Validation network error" });
                     }
                 } finally {
@@ -125,8 +101,8 @@ const useAuthStore = create(
             }
         }),
         {
-            name: 'auth-storage',
-            partialize: (state) => ({ user: state.user, token: state.token, isAuthenticated: state.isAuthenticated }), // only persist these fields
+            name: 'campusconnect-auth-storage',
+            partialize: (state) => ({ user: state.user, token: state.token, isAuthenticated: state.isAuthenticated }),
         }
     )
 );
