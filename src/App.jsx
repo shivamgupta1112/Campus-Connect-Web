@@ -42,12 +42,8 @@ const App = () => {
 
         <Route path="/get-started/dashboard" element={<GetStarted />} />
 
-        <Route path="/login" element={<div className="bg-white">
-          <Header />
-          <main>
-            <Login />
-          </main>
-        </div>} />
+        <Route path="/login" element={<Login />} />
+
 
         <Route path="/forgot-password" element={<div className="bg-white">
           <Header />
