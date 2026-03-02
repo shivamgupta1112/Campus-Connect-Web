@@ -3,6 +3,12 @@ import { useNavigate } from 'react-router';
 import { toast } from 'react-hot-toast';
 import useAuthStore from '../store/useAuthStore';
 import { LogOut, User, Home, BookOpen, Settings, Bell, Search } from 'lucide-react';
+import ProfileSetup from './auth/ProfileSetup';
+import DashboardLayout from './dashboards/DashboardLayout';
+import AdminDashboard from './dashboards/AdminDashboard';
+import CoordinatorDashboard from './dashboards/CoordinatorDashboard';
+import TeacherDashboard from './dashboards/TeacherDashboard';
+import StudentDashboard from './dashboards/StudentDashboard';
 
 const GetStarted = () => {
     const navigate = useNavigate();
@@ -57,12 +63,37 @@ const GetStarted = () => {
 
     if (!isAuthenticated) return null;
 
-    // Clean Dashboard UI for Authenticated User (No Role Specifics)
+    if (user?.role === 'Student' && !user?.profileCompleted) {
+        return <ProfileSetup />;
+    }
+
+    const getDashboardByRole = () => {
+        switch (user?.role) {
+            case 'Admin':
+                return <AdminDashboard />;
+            case 'Coordinator':
+                return <CoordinatorDashboard />;
+            case 'Teacher':
+                return <TeacherDashboard />;
+            case 'Student':
+                return <StudentDashboard />;
+            default:
+                return (
+                    <div className="flex flex-col items-center justify-center p-12 text-center">
+                        <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
+                            <span className="text-2xl">⚠️</span>
+                        </div>
+                        <h2 className="text-xl font-bold text-gray-900">Unknown Role</h2>
+                        <p className="text-gray-500 mt-2">Please contact an administrator.</p>
+                    </div>
+                );
+        }
+    };
+
     return (
-        <div className="min-h-screen bg-gray-50 flex font-sans">
-            Get Started
-            <button onClick={logout}>Logout</button>
-        </div>
+        <DashboardLayout>
+            {getDashboardByRole()}
+        </DashboardLayout>
     );
 };
 

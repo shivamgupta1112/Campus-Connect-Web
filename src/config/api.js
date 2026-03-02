@@ -21,6 +21,10 @@ const USER_URL =
             ? import.meta.env.VITE_PREVIEW_USER_URL
             : import.meta.env.VITE_PROD_USER_URL;
 
+const DEPARTMENT_URL = import.meta.env.DEV ? "http://localhost:5000/api/departments" : import.meta.env.VITE_PROD_DEPARTMENT_URL;
+const COURSE_URL = import.meta.env.DEV ? "http://localhost:5000/api/courses" : import.meta.env.VITE_PROD_COURSE_URL;
+const NOTE_URL = import.meta.env.DEV ? "http://localhost:5000/api/notes" : import.meta.env.VITE_PROD_NOTE_URL;
+
 const attachToken = (config) => {
     const token = localStorage.getItem('campusconnect-token');
     if (token) {
@@ -30,16 +34,20 @@ const attachToken = (config) => {
 };
 
 // Create axios instances
-// Create axios instances
 const authApi = axios.create({ baseURL: AUTH_URL, withCredentials: true });
 const collegeApi = axios.create({ baseURL: COLLEGE_URL, withCredentials: true });
 const userApi = axios.create({ baseURL: USER_URL, withCredentials: true });
+const departmentApi = axios.create({ baseURL: DEPARTMENT_URL, withCredentials: true });
+const courseApi = axios.create({ baseURL: COURSE_URL, withCredentials: true });
+const noteApi = axios.create({ baseURL: NOTE_URL, withCredentials: true });
 
-// Attach interceptors
 // Attach token interceptor
 authApi.interceptors.request.use(attachToken);
 collegeApi.interceptors.request.use(attachToken);
 userApi.interceptors.request.use(attachToken);
+departmentApi.interceptors.request.use(attachToken);
+courseApi.interceptors.request.use(attachToken);
+noteApi.interceptors.request.use(attachToken);
 
 // Logging Interceptors (Dev only)
 if (import.meta.env.DEV) {
@@ -84,6 +92,7 @@ export const forgotPassword = (email) => authApi.post('/forgot-password', { emai
 export const resetPassword = (data) => authApi.post('/reset-password', data);
 export const refreshToken = () => authApi.get('/refresh');
 export const logout = () => authApi.get('/logout');
+export const updateProfile = (data) => authApi.put('/profile', data);
 
 // College API Methods
 export const getColleges = (params) => collegeApi.get('/', { params });
@@ -92,6 +101,19 @@ export const createCollege = (data) => collegeApi.post('/', data);
 export const updateCollege = (id, data) => collegeApi.put(`/${id}`, data);
 export const deleteCollege = (id) => collegeApi.delete(`/${id}`);
 export const getAvailableDirectors = (params) => collegeApi.get('/available-directors', { params });
+
+// Department API Methods
+export const getDepartments = () => departmentApi.get('/');
+export const createDepartment = (data) => departmentApi.post('/', data);
+
+// Course API Methods
+export const getCourses = (params) => courseApi.get('/', { params });
+export const createCourse = (data) => courseApi.post('/', data);
+
+// Note API Methods
+export const getNotes = (params) => noteApi.get('/', { params });
+export const uploadNote = (data) => noteApi.post('/', data, { headers: { 'Content-Type': 'multipart/form-data' } });
+export const deleteNote = (id) => noteApi.delete(`/${id}`);
 
 // User API Methods (Directors, Faculty, Students)
 export const getUsers = (params) => userApi.get('/', { params });
