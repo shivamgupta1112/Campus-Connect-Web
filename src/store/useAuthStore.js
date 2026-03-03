@@ -47,6 +47,10 @@ const useAuthStore = create(
                 set({ user: null, token: null, isAuthenticated: false, error: null });
             },
 
+            updateUserLocally: (updates) => set((state) => ({
+                user: state.user ? { ...state.user, ...updates } : null
+            })),
+
             checkAuth: async () => {
                 const state = get();
                 const token = state.token || localStorage.getItem('campusconnect-token');

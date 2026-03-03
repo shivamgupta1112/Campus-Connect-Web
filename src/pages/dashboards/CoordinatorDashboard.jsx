@@ -51,7 +51,7 @@ const CoordinatorDashboard = ({ activeItem, setActiveItem }) => {
     const handleAssignFormSubmit = async (e) => {
         e.preventDefault();
         if (!selectedTeacher) {
-            toast.error("Please select a teacher");
+            toast.error(`Please select a ${currentTab === 'Teachers' ? 'teacher' : 'student'}`);
             return;
         }
 
@@ -129,7 +129,7 @@ const CoordinatorDashboard = ({ activeItem, setActiveItem }) => {
             <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
                 <div className="flex items-center justify-between p-5 border-b border-gray-100">
                     <h3 className="font-semibold text-gray-900">Department {currentTab}</h3>
-                    {currentTab === 'Teachers' && (
+                    {(currentTab === 'Teachers' || currentTab === 'Students') && (
                         <button
                             onClick={() => setIsAssignModalOpen(true)}
                             className="text-sm bg-purple-50 text-purple-600 px-4 py-2 rounded-xl hover:bg-purple-100 font-medium flex items-center gap-2 transition-colors"
@@ -156,6 +156,7 @@ const CoordinatorDashboard = ({ activeItem, setActiveItem }) => {
                                         <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Email</th>
                                         <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Program</th>
                                         <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Batch</th>
+                                        <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Courses</th>
                                     </>
                                 )}
                                 {currentTab === 'Courses' && (
@@ -197,10 +198,15 @@ const CoordinatorDashboard = ({ activeItem, setActiveItem }) => {
                                     <td className="px-5 py-3.5"><span className="text-sm text-gray-600">{student.contactInfo?.email}</span></td>
                                     <td className="px-5 py-3.5"><span className="text-sm text-gray-600">{student.studentDetails?.program || "N/A"}</span></td>
                                     <td className="px-5 py-3.5"><span className="text-sm text-gray-600">{student.studentDetails?.batch || "N/A"}</span></td>
+                                    <td className="px-5 py-3.5">
+                                        <div className="flex flex-wrap gap-2 text-xs">
+                                            {student.courses?.length || 0} courses
+                                        </div>
+                                    </td>
                                 </tr>
                             ))}
                             {currentTab === 'Students' && students.length === 0 && !loading && (
-                                <tr><td colSpan="4" className="px-5 py-8 text-center text-sm text-gray-500">No students found.</td></tr>
+                                <tr><td colSpan="5" className="px-5 py-8 text-center text-sm text-gray-500">No students found.</td></tr>
                             )}
 
                             {/* Courses View */}
@@ -226,33 +232,34 @@ const CoordinatorDashboard = ({ activeItem, setActiveItem }) => {
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
                     <div className="bg-white rounded-2xl w-full max-w-lg overflow-hidden shadow-xl">
                         <div className="flex items-center justify-between p-5 border-b border-gray-100 text-left">
-                            <h3 className="font-semibold text-gray-900">Assign Courses to Teacher</h3>
+                            <h3 className="font-semibold text-gray-900">Assign Courses to {currentTab === 'Teachers' ? 'Teacher' : 'Student'}</h3>
                             <button onClick={() => setIsAssignModalOpen(false)} className="text-gray-400 hover:text-gray-600">
                                 <X size={20} />
                             </button>
                         </div>
                         <form onSubmit={handleAssignFormSubmit} className="p-5 space-y-5 text-left">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Select Teacher</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Select {currentTab === 'Teachers' ? 'Teacher' : 'Student'}</label>
                                 <select
                                     className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-purple-500 focus:border-purple-500"
                                     value={selectedTeacher}
                                     onChange={(e) => {
                                         setSelectedTeacher(e.target.value);
                                         // Auto-select their existing courses
-                                        const teacher = teachers.find(t => t._id === e.target.value);
-                                        if (teacher && teacher.courses) {
-                                            setSelectedCourses(teacher.courses);
+                                        const activeList = currentTab === 'Teachers' ? teachers : students;
+                                        const selectedUser = activeList.find(t => t._id === e.target.value);
+                                        if (selectedUser && selectedUser.courses) {
+                                            setSelectedCourses(selectedUser.courses);
                                         } else {
                                             setSelectedCourses([]);
                                         }
                                     }}
                                     required
                                 >
-                                    <option value="" disabled>Choose a teacher...</option>
-                                    {teachers.map(teacher => (
-                                        <option key={teacher._id} value={teacher._id}>
-                                            {teacher.name} ({teacher.contactInfo?.email})
+                                    <option value="" disabled>Choose a {currentTab === 'Teachers' ? 'teacher' : 'student'}...</option>
+                                    {(currentTab === 'Teachers' ? teachers : students).map(person => (
+                                        <option key={person._id} value={person._id}>
+                                            {person.name} ({person.contactInfo?.email})
                                         </option>
                                     ))}
                                 </select>

@@ -28,9 +28,13 @@ const TeacherDashboard = ({ activeItem = 'Dashboard' }) => {
         try {
             const res = await getNotes({ department: user.department });
             if (res.data?.success) {
-                // Filter notes to only show ones uploaded by this teacher (optional, but requested behavior is "as per the courses").
-                // Backend returns all for department; let's filter by uploader for "My Uploads" or course.
-                const myNotes = res.data.data.filter(n => n.uploadedBy?._id === user._id || n.uploadedBy === user._id);
+                // Filter notes to only show ones uploaded by this teacher.
+                // Backend returns all for department; let's filter by uploader for "My Uploads".
+                const userId = user._id || user.id;
+                const myNotes = res.data.data.filter(n => {
+                    const uploadedById = n.uploadedBy?._id || n.uploadedBy;
+                    return String(uploadedById) === String(userId);
+                });
                 setNotes(myNotes);
             }
         } catch (error) {

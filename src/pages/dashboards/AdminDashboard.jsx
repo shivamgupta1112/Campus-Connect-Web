@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Users, Building2, GraduationCap, BookOpen, TrendingUp, UserPlus, X, Loader2, Settings } from "lucide-react";
-import { createDepartment, getDepartments, createCourse, getCourses, getUsers } from "../../config/api";
+import { Users, Building2, GraduationCap, BookOpen, TrendingUp, UserPlus, X, Loader2, Settings, Edit2, Trash2 } from "lucide-react";
+import { createDepartment, getDepartments, createCourse, getCourses, getUsers, createUser, updateUser, deleteUser } from "../../config/api";
 import { toast } from "react-hot-toast";
 
 const stats = [
@@ -25,7 +25,7 @@ const recentUsers = [
     { name: "Vikram Singh", role: "Teacher", dept: "Chemistry", date: "2 days ago" },
 ];
 
-const AdminDashboard = ({ activeItem = 'Dashboard' }) => {
+const AdminDashboard = ({ activeItem = 'Dashboard', setActiveItem }) => {
     // Stat States
     const [departmentCount, setDepartmentCount] = useState(0);
     const [courseCount, setCourseCount] = useState(0);
@@ -34,6 +34,7 @@ const AdminDashboard = ({ activeItem = 'Dashboard' }) => {
     // Modal States
     const [isDeptModalOpen, setIsDeptModalOpen] = useState(false);
     const [isCourseModalOpen, setIsCourseModalOpen] = useState(false);
+    const [isUserModalOpen, setIsUserModalOpen] = useState(false);
     const [loading, setLoading] = useState(false);
 
     // Data lists
@@ -44,6 +45,11 @@ const AdminDashboard = ({ activeItem = 'Dashboard' }) => {
     // Form Data
     const [deptForm, setDeptForm] = useState({ name: "", description: "" });
     const [courseForm, setCourseForm] = useState({ name: "", code: "", department: "", credits: 3 });
+    const [userForm, setUserForm] = useState({ name: "", email: "", phone: "", role: "Student", password: "", department: "" });
+
+    // Edit User States
+    const [isEditUser, setIsEditUser] = useState(false);
+    const [editingUserId, setEditingUserId] = useState(null);
 
     useEffect(() => {
         fetchData();
@@ -107,6 +113,58 @@ const AdminDashboard = ({ activeItem = 'Dashboard' }) => {
             toast.error(error.response?.data?.error || "Error creating course");
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleOpenCreateUser = () => {
+        setIsEditUser(false);
+        setUserForm({ name: "", email: "", phone: "", role: "Student", password: "", department: "" });
+        setIsUserModalOpen(true);
+    };
+
+    const handleOpenEditUser = (u) => {
+        setIsEditUser(true);
+        setEditingUserId(u._id);
+        setUserForm({ name: u.name, email: u.contactInfo?.email || "", phone: u.contactInfo?.phone || "", role: u.role, password: "", department: u.department || "" });
+        setIsUserModalOpen(true);
+    };
+
+    const handleSaveUser = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        try {
+            if (isEditUser) {
+                const data = { ...userForm };
+                if (!data.password) delete data.password;
+                const res = await updateUser(editingUserId, data);
+                if (res.data.success) {
+                    toast.success("User updated!");
+                }
+            } else {
+                const res = await createUser(userForm);
+                if (res.data.success) {
+                    toast.success("User created!");
+                }
+            }
+            setIsUserModalOpen(false);
+            fetchData();
+        } catch (error) {
+            toast.error(error.response?.data?.error || "Error saving user");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleDeleteUser = async (id) => {
+        if (!window.confirm("Are you sure you want to delete this user?")) return;
+        try {
+            const res = await deleteUser(id);
+            if (res.data.success) {
+                toast.success("User deleted");
+                fetchData();
+            }
+        } catch (error) {
+            toast.error(error.response?.data?.error || "Error deleting user");
         }
     };
 
@@ -183,7 +241,9 @@ const AdminDashboard = ({ activeItem = 'Dashboard' }) => {
                     <div className="bg-white rounded-2xl border border-gray-100 p-5">
                         <h3 className="font-semibold text-gray-900 mb-4">Quick Actions</h3>
                         <div className="space-y-3">
-                            <button className="w-full flex items-center gap-3 px-4 py-3 bg-blue-50 rounded-xl text-sm font-medium text-blue-700 hover:bg-blue-100 transition-colors">
+                            <button
+                                onClick={() => setActiveItem && setActiveItem('Users')}
+                                className="w-full flex items-center gap-3 px-4 py-3 bg-blue-50 rounded-xl text-sm font-medium text-blue-700 hover:bg-blue-100 transition-colors">
                                 <UserPlus size={18} />
                                 Manage Users
                             </button>
@@ -219,6 +279,13 @@ const AdminDashboard = ({ activeItem = 'Dashboard' }) => {
                 <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
                     <div className="flex items-center justify-between p-5 border-b border-gray-100">
                         <h3 className="font-semibold text-gray-900">All System Users</h3>
+                        <button
+                            onClick={handleOpenCreateUser}
+                            className="text-sm bg-blue-50 text-blue-600 px-4 py-2 rounded-xl hover:bg-blue-100 font-medium flex items-center gap-2 transition-colors"
+                        >
+                            <UserPlus size={16} />
+                            Add User
+                        </button>
                     </div>
                     <div className="overflow-x-auto">
                         <table className="w-full">
@@ -228,6 +295,7 @@ const AdminDashboard = ({ activeItem = 'Dashboard' }) => {
                                     <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Email</th>
                                     <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Role</th>
                                     <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Department</th>
+                                    <th className="text-right px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-50">
@@ -246,6 +314,24 @@ const AdminDashboard = ({ activeItem = 'Dashboard' }) => {
                                             </span>
                                         </td>
                                         <td className="px-5 py-3.5"><span className="text-sm text-gray-600">{user.department || "-"}</span></td>
+                                        <td className="px-5 py-3.5 text-right">
+                                            <div className="flex justify-end gap-2">
+                                                <button
+                                                    onClick={() => handleOpenEditUser(user)}
+                                                    className="p-1.5 text-blue-600 hover:bg-blue-50 rounded"
+                                                    title="Edit User"
+                                                >
+                                                    <Edit2 size={16} />
+                                                </button>
+                                                <button
+                                                    onClick={() => handleDeleteUser(user._id)}
+                                                    className="p-1.5 text-red-600 hover:bg-red-50 rounded"
+                                                    title="Delete User"
+                                                >
+                                                    <Trash2 size={16} />
+                                                </button>
+                                            </div>
+                                        </td>
                                     </tr>
                                 ))}
                                 {usersList.length === 0 && (
@@ -348,6 +434,63 @@ const AdminDashboard = ({ activeItem = 'Dashboard' }) => {
             )}
 
             {/* Modals */}
+            {/* Create/Edit User Modal */}
+            {isUserModalOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+                    <div className="bg-white rounded-2xl w-full max-w-lg overflow-hidden shadow-xl">
+                        <div className="flex items-center justify-between p-5 border-b border-gray-100">
+                            <h3 className="font-semibold text-gray-900">{isEditUser ? "Edit User" : "Create New User"}</h3>
+                            <button onClick={() => setIsUserModalOpen(false)} className="text-gray-400 hover:text-gray-600">
+                                <X size={20} />
+                            </button>
+                        </div>
+                        <form onSubmit={handleSaveUser} className="p-5 space-y-4">
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                                    <input required type="text" value={userForm.name} onChange={(e) => setUserForm({ ...userForm, name: e.target.value })} className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-blue-500 focus:border-blue-500" placeholder="John Doe" />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                                    <input required type="email" value={userForm.email} onChange={(e) => setUserForm({ ...userForm, email: e.target.value })} className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-blue-500 focus:border-blue-500" placeholder="user@example.com" />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
+                                    <select required value={userForm.role} onChange={(e) => setUserForm({ ...userForm, role: e.target.value })} className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-blue-500 focus:border-blue-500">
+                                        <option value="Student">Student</option>
+                                        <option value="Teacher">Teacher</option>
+                                        <option value="Coordinator">Coordinator</option>
+                                        <option value="Admin">Admin</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Department</label>
+                                    <select value={userForm.department} onChange={(e) => setUserForm({ ...userForm, department: e.target.value })} className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-blue-500 focus:border-blue-500">
+                                        <option value="">No Department</option>
+                                        {departmentsList.map(dept => (
+                                            <option key={dept._id} value={dept.name}>{dept.name}</option>
+                                        ))}
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Phone (Optional)</label>
+                                    <input type="tel" value={userForm.phone} onChange={(e) => setUserForm({ ...userForm, phone: e.target.value })} className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-blue-500 focus:border-blue-500" placeholder="+1234567890" />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">{isEditUser ? "New Password (Optional)" : "Password"}</label>
+                                    <input type="password" required={!isEditUser} value={userForm.password} onChange={(e) => setUserForm({ ...userForm, password: e.target.value })} className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-blue-500 focus:border-blue-500" placeholder="••••••••" minLength={6} />
+                                </div>
+                            </div>
+                            <button disabled={loading} type="submit" className="w-full mt-4 py-2.5 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 transition-colors flex items-center justify-center">
+                                {loading ? <Loader2 size={18} className="animate-spin" /> : (isEditUser ? "Update User" : "Create User")}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            )}
+
             {/* Create Department Modal */}
             {isDeptModalOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
