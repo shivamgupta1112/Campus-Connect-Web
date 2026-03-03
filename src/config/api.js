@@ -24,6 +24,7 @@ const USER_URL =
 const DEPARTMENT_URL = import.meta.env.DEV ? "http://localhost:5000/api/departments" : import.meta.env.VITE_PROD_DEPARTMENT_URL;
 const COURSE_URL = import.meta.env.DEV ? "http://localhost:5000/api/courses" : import.meta.env.VITE_PROD_COURSE_URL;
 const NOTE_URL = import.meta.env.DEV ? "http://localhost:5000/api/notes" : import.meta.env.VITE_PROD_NOTE_URL;
+const PROGRAM_URL = import.meta.env.DEV ? "http://localhost:5000/api/programs" : import.meta.env.VITE_PROD_PROGRAM_URL;
 
 const attachToken = (config) => {
     const token = localStorage.getItem('campusconnect-token');
@@ -40,6 +41,7 @@ const userApi = axios.create({ baseURL: USER_URL, withCredentials: true });
 const departmentApi = axios.create({ baseURL: DEPARTMENT_URL, withCredentials: true });
 const courseApi = axios.create({ baseURL: COURSE_URL, withCredentials: true });
 const noteApi = axios.create({ baseURL: NOTE_URL, withCredentials: true });
+const programApi = axios.create({ baseURL: PROGRAM_URL, withCredentials: true });
 
 // Attach token interceptor
 authApi.interceptors.request.use(attachToken);
@@ -48,6 +50,7 @@ userApi.interceptors.request.use(attachToken);
 departmentApi.interceptors.request.use(attachToken);
 courseApi.interceptors.request.use(attachToken);
 noteApi.interceptors.request.use(attachToken);
+programApi.interceptors.request.use(attachToken);
 
 // Logging Interceptors (Dev only)
 if (import.meta.env.DEV) {
@@ -105,6 +108,11 @@ export const getAvailableDirectors = (params) => collegeApi.get('/available-dire
 // Department API Methods
 export const getDepartments = () => departmentApi.get('/');
 export const createDepartment = (data) => departmentApi.post('/', data);
+
+// Program API Methods
+export const getPrograms = (params) => programApi.get('/', { params });
+export const createProgram = (data) => programApi.post('/', data);
+export const updateProgram = (id, data) => programApi.put(`/${id}`, data);
 
 // Course API Methods
 export const getCourses = (params) => courseApi.get('/', { params });

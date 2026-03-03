@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { BookOpen, FileText, Clock, TrendingUp, Download, Calendar, FolderOpen, CheckCircle2, Circle } from "lucide-react";
 import useAuthStore from "../../store/useAuthStore";
-import { getNotes, updateUser } from "../../config/api";
+import { getNotes, updateUser, getPrograms } from "../../config/api";
 
 const StudentDashboard = ({ activeItem, setActiveItem }) => {
     const { user, updateUserLocally } = useAuthStore();
     const [notes, setNotes] = useState([]);
+    const [enrolledCourses, setEnrolledCourses] = useState([]);
     const [loading, setLoading] = useState(true);
 
     // Initialize from user state
@@ -59,22 +60,28 @@ const StudentDashboard = ({ activeItem, setActiveItem }) => {
     };
 
     useEffect(() => {
-        fetchNotes();
-    }, []);
+        fetchDashboardData();
+    }, [user]);
 
-    const fetchNotes = async () => {
+    const fetchDashboardData = async () => {
         setLoading(true);
         try {
-            // Fetch notes for the student's department or courses
-            const res = await getNotes({ department: user.department });
-            if (res.data?.success) {
-                // For a student, ideally filter notes by courses they are enrolled in.
-                const studentCourses = user?.courses || [];
-                const matchedNotes = res.data.data.filter(n => studentCourses.includes(n.course));
-                setNotes(matchedNotes);
+            if (user?.studentDetails?.program) {
+                const progRes = await getPrograms({ department: user.department });
+                if (progRes.data?.success) {
+                    const studentProgram = progRes.data.data.find(p => p.name === user.studentDetails.program);
+                    const coursesArr = studentProgram?.courses || [];
+                    setEnrolledCourses(coursesArr);
+
+                    const res = await getNotes({ department: user.department });
+                    if (res.data?.success) {
+                        const matchedNotes = res.data.data.filter(n => coursesArr.includes(n.course));
+                        setNotes(matchedNotes);
+                    }
+                }
             }
         } catch (error) {
-            console.error("Error fetching notes:", error);
+            console.error("Error fetching data:", error);
         } finally {
             setLoading(false);
         }
@@ -85,7 +92,7 @@ const StudentDashboard = ({ activeItem, setActiveItem }) => {
     const progressPercentage = totalNotes > 0 ? Math.round((validCompletedCount / totalNotes) * 100) : 0;
 
     const stats = [
-        { label: "Enrolled Courses", value: user?.courses?.length || 0, icon: BookOpen, color: "bg-blue-50 text-blue-600" },
+        { label: "Enrolled Courses", value: enrolledCourses.length, icon: BookOpen, color: "bg-blue-50 text-blue-600" },
         { label: "Notes Available", value: loading ? "..." : notes.length, icon: FileText, color: "bg-emerald-50 text-emerald-600" },
         { label: "Overall Progress", value: `${progressPercentage}%`, icon: TrendingUp, color: "bg-amber-50 text-amber-600" },
     ];
@@ -176,7 +183,7 @@ const StudentDashboard = ({ activeItem, setActiveItem }) => {
     );
 
     const renderMyCourses = () => {
-        const courses = user?.courses || [];
+        const courses = enrolledCourses;
 
         return (
             <div className="space-y-6">

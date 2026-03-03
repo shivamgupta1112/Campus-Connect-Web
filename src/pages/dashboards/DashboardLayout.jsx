@@ -14,6 +14,7 @@ import {
     Building2,
     UserCircle,
     ChevronRight,
+    ClipboardList
 } from "lucide-react";
 import useAuthStore from "../../store/useAuthStore";
 
@@ -28,6 +29,7 @@ const roleNavItems = {
         { label: "Dashboard", icon: Home, path: "/get-started/dashboard" },
         { label: "Teachers", icon: Users, path: "/get-started/dashboard" },
         { label: "Students", icon: GraduationCap, path: "/get-started/dashboard" },
+        { label: "Programs", icon: ClipboardList, path: "/get-started/dashboard" },
         { label: "Courses", icon: BookOpen, path: "/get-started/dashboard" },
     ],
     Teacher: [
