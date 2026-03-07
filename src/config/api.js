@@ -21,10 +21,33 @@ const USER_URL =
             ? import.meta.env.VITE_PREVIEW_USER_URL
             : import.meta.env.VITE_PROD_USER_URL;
 
-const DEPARTMENT_URL = import.meta.env.DEV ? "http://localhost:5000/api/departments" : import.meta.env.VITE_PROD_DEPARTMENT_URL;
-const COURSE_URL = import.meta.env.DEV ? "http://localhost:5000/api/courses" : import.meta.env.VITE_PROD_COURSE_URL;
-const NOTE_URL = import.meta.env.DEV ? "http://localhost:5000/api/notes" : import.meta.env.VITE_PROD_NOTE_URL;
-const PROGRAM_URL = import.meta.env.DEV ? "http://localhost:5000/api/programs" : import.meta.env.VITE_PROD_PROGRAM_URL;
+const DEPARTMENT_URL =
+    import.meta.env.DEV
+        ? "http://localhost:5000/api/departments"
+        : import.meta.env.VITE_VERCEL_ENV === "preview"
+            ? import.meta.env.VITE_PREVIEW_DEPARTMENT_URL
+            : import.meta.env.VITE_PROD_DEPARTMENT_URL;
+
+const COURSE_URL =
+    import.meta.env.DEV
+        ? "http://localhost:5000/api/courses"
+        : import.meta.env.VITE_VERCEL_ENV === "preview"
+            ? import.meta.env.VITE_PREVIEW_COURSE_URL
+            : import.meta.env.VITE_PROD_COURSE_URL;
+
+const NOTE_URL =
+    import.meta.env.DEV
+        ? "http://localhost:5000/api/notes"
+        : import.meta.env.VITE_VERCEL_ENV === "preview"
+            ? import.meta.env.VITE_PREVIEW_NOTE_URL
+            : import.meta.env.VITE_PROD_NOTE_URL;
+
+const PROGRAM_URL =
+    import.meta.env.DEV
+        ? "http://localhost:5000/api/programs"
+        : import.meta.env.VITE_VERCEL_ENV === "preview"
+            ? import.meta.env.VITE_PREVIEW_PROGRAM_URL
+            : import.meta.env.VITE_PROD_PROGRAM_URL;
 
 const attachToken = (config) => {
     const token = localStorage.getItem('campusconnect-token');
@@ -162,3 +185,10 @@ const api = {
 export default api;
 
 
+// VITE_PROD_AUTH_URL=https://campusconnectserver-shivamgupta1112.vercel.app/api/auth
+// VITE_PROD_COLLEGE_URL=https://campusconnectserver-shivamgupta1112.vercel.app/api/colleges
+// VITE_PROD_USER_URL=https://campusconnectserver-shivamgupta1112.vercel.app/api/users
+// VITE_PROD_DEPARTMENT_URL=https://campusconnectserver-shivamgupta1112.vercel.app/api/departments
+// VITE_PROD_COURSE_URL=https://campusconnectserver-shivamgupta1112.vercel.app/api/courses
+// VITE_PROD_NOTE_URL=https://campusconnectserver-shivamgupta1112.vercel.app/api/notes
+// VITE_PROD_PROGRAM_URL=https://campusconnectserver-shivamgupta1112.vercel.app/api/programs
