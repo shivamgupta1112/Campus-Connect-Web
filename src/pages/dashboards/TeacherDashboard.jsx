@@ -179,7 +179,7 @@ const TeacherDashboard = ({ activeItem = 'Dashboard' }) => {
                                             </div>
                                         </div>
                                         <div className="flex items-center gap-3">
-                                            <a href={note.fileUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:underline">
+                                            <a href={`/pdf-viewer/${note._id}?url=${encodeURIComponent(note.fileUrl)}&title=${encodeURIComponent(note.title)}`} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:underline">
                                                 View
                                             </a>
                                         </div>
@@ -257,7 +257,7 @@ const TeacherDashboard = ({ activeItem = 'Dashboard' }) => {
                                             </td>
                                             <td className="px-5 py-3.5"><span className="text-sm text-gray-600">{new Date(note.createdAt).toLocaleDateString()}</span></td>
                                             <td className="px-5 py-3.5 text-right flex items-center justify-end gap-3">
-                                                <a href={note.fileUrl} target="_blank" rel="noopener noreferrer" className="text-emerald-600 hover:text-emerald-900 text-sm font-medium">View</a>
+                                                <a href={`/pdf-viewer/${note._id}?url=${encodeURIComponent(note.fileUrl)}&title=${encodeURIComponent(note.title)}`} target="_blank" rel="noopener noreferrer" className="text-emerald-600 hover:text-emerald-900 text-sm font-medium">View</a>
                                                 <button onClick={() => handleDelete(note._id)} className="text-red-500 hover:text-red-700">
                                                     <Trash2 size={16} />
                                                 </button>

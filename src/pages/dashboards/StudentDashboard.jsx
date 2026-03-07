@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { BookOpen, FileText, Clock, TrendingUp, Download, Calendar, FolderOpen, CheckCircle2, Circle } from "lucide-react";
 import useAuthStore from "../../store/useAuthStore";
-import { getNotes, updateUser, getPrograms } from "../../config/api";
+import { getNotes, updateUser, getPrograms, getMyAnnotations } from "../../config/api";
 
 const StudentDashboard = ({ activeItem, setActiveItem }) => {
     const { user, updateUserLocally } = useAuthStore();
     const [notes, setNotes] = useState([]);
     const [enrolledCourses, setEnrolledCourses] = useState([]);
+    const [myAnnotations, setMyAnnotations] = useState([]);
     const [loading, setLoading] = useState(true);
 
     // Initialize from user state
@@ -70,16 +71,41 @@ const StudentDashboard = ({ activeItem, setActiveItem }) => {
                 const progRes = await getPrograms({ department: user.department });
                 if (progRes.data?.success) {
                     const studentProgram = progRes.data.data.find(p => p.name === user.studentDetails.program);
-                    const coursesArr = studentProgram?.courses || [];
-                    setEnrolledCourses(coursesArr);
+                    const programCourses = studentProgram?.courses || [];
+
+                    // Maintain historical access to courses even if program changes or course is removed
+                    const historicalCourses = user.courses || [];
+                    const allCourses = [...new Set([...historicalCourses, ...programCourses])];
+
+                    if (allCourses.length > historicalCourses.length) {
+                        try {
+                            updateUserLocally({ courses: allCourses });
+                            await updateUser(user.id || user._id, { courses: allCourses });
+                        } catch (e) {
+                            console.error("Failed to sync historical courses", e);
+                        }
+                    }
+
+                    setEnrolledCourses(allCourses);
 
                     const res = await getNotes({ department: user.department });
                     if (res.data?.success) {
-                        const matchedNotes = res.data.data.filter(n => coursesArr.includes(n.course));
+                        const matchedNotes = res.data.data.filter(n => allCourses.includes(n.course));
                         setNotes(matchedNotes);
                     }
                 }
             }
+
+            // Fetch annotations separately since they persist despite course enrollment
+            try {
+                const annRes = await getMyAnnotations();
+                if (annRes.data?.success) {
+                    setMyAnnotations(annRes.data.data);
+                }
+            } catch (err) {
+                console.error("Failed to load personal annotations", err);
+            }
+
         } catch (error) {
             console.error("Error fetching data:", error);
         } finally {
@@ -167,8 +193,8 @@ const StudentDashboard = ({ activeItem, setActiveItem }) => {
                                     </div>
                                     <div className="flex items-center gap-4">
                                         <span className="text-xs text-gray-400 hidden sm:inline-block">{timeAgo(note.createdAt)}</span>
-                                        <a href={note.fileUrl} target="_blank" rel="noopener noreferrer" className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
-                                            <Download size={18} />
+                                        <a href={`/pdf-viewer/${note._id}?url=${encodeURIComponent(note.fileUrl)}&title=${encodeURIComponent(note.title)}`} target="_blank" rel="noopener noreferrer" className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title='Open document'>
+                                            <BookOpen size={18} />
                                         </a>
                                     </div>
                                 </div>
@@ -233,8 +259,8 @@ const StudentDashboard = ({ activeItem, setActiveItem }) => {
                                                 </div>
                                                 <div className="flex items-center gap-4">
                                                     <span className="text-xs text-gray-400 hidden sm:inline-block">{timeAgo(note.createdAt)}</span>
-                                                    <a href={note.fileUrl} target="_blank" rel="noopener noreferrer" className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors title='Download note'">
-                                                        <Download size={18} />
+                                                    <a href={`/pdf-viewer/${note._id}?url=${encodeURIComponent(note.fileUrl)}&title=${encodeURIComponent(note.title)}`} target="_blank" rel="noopener noreferrer" className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title='Open document'>
+                                                        <BookOpen size={18} />
                                                     </a>
                                                 </div>
                                             </div>
@@ -253,10 +279,69 @@ const StudentDashboard = ({ activeItem, setActiveItem }) => {
         );
     };
 
+    const renderMyAnnotations = () => {
+        return (
+            <div className="space-y-6">
+                <div className="bg-gradient-to-r from-amber-500 to-orange-500 rounded-2xl p-6 text-white mb-6">
+                    <h2 className="text-xl font-bold mb-1">
+                        My Saved Annotations 📝
+                    </h2>
+                    <p className="text-orange-50 text-sm">
+                        Access all your notes across any document you've studied, even if the course is no longer active.
+                    </p>
+                </div>
+
+                {myAnnotations.length === 0 ? (
+                    <div className="bg-white rounded-2xl p-8 border border-gray-100 text-center">
+                        <FileText size={48} className="mx-auto text-gray-300 mb-4" />
+                        <h3 className="text-lg font-semibold text-gray-900 mb-1">No Annotations Found</h3>
+                        <p className="text-sm text-gray-500">You haven't added any personal notes to any documents yet.</p>
+                    </div>
+                ) : (
+                    <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+                        <div className="divide-y divide-gray-50">
+                            {myAnnotations.map((noteDoc) => (
+                                <div key={noteDoc._id} className="flex items-start justify-between px-5 py-5 hover:bg-gray-50 transition-colors">
+                                    <div className="flex gap-4">
+                                        <div className="w-10 h-10 shrink-0 rounded-xl bg-amber-50 flex items-center justify-center mt-1">
+                                            <span className="text-xs font-bold text-amber-600">NOTES</span>
+                                        </div>
+                                        <div>
+                                            <h4 className="text-base font-semibold text-gray-900 leading-tight mb-1">{noteDoc.title}</h4>
+                                            <p className="text-sm text-gray-500 mb-3">{noteDoc.course}</p>
+
+                                            <div className="flex flex-wrap gap-2">
+                                                {noteDoc.pagesAnnotated.map(pageNum => (
+                                                    <span key={pageNum} className="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-amber-100 text-amber-800 text-xs font-semibold">
+                                                        Page {pageNum}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="flex flex-col items-end gap-3 mt-1 shrink-0 ml-4">
+                                        <a href={`/pdf-viewer/${noteDoc._id}?url=${encodeURIComponent(noteDoc.fileUrl)}&title=${encodeURIComponent(noteDoc.title)}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 font-medium rounded-lg transition-colors text-sm">
+                                            <BookOpen size={16} />
+                                            Open Document
+                                        </a>
+                                        <span className="text-xs text-gray-400">
+                                            Last modified: {new Date(noteDoc.updatedAt || new Date()).toLocaleDateString()}
+                                        </span>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+            </div>
+        );
+    };
+
     return (
         <div>
             {currentTab === 'Dashboard' && renderDashboard()}
             {currentTab === 'My Courses' && renderMyCourses()}
+            {currentTab === 'My Annotations' && renderMyAnnotations()}
         </div>
     );
 };

@@ -7,6 +7,7 @@ import GetStarted from "./pages/GetStarted";
 import Login from "./pages/auth/Login";
 import ForgetPassword from "./pages/auth/ForgetPassword";
 import ResetPassword from "./pages/auth/ResetPassword";
+import PdfViewer from "./pages/PdfViewer";
 
 import Features from "./components/Features";
 import Footer from "./components/Footer";
@@ -58,6 +59,8 @@ const App = () => {
             <ResetPassword />
           </main>
         </div>} />
+
+        <Route path="/pdf-viewer/:noteId" element={<PdfViewer />} />
 
       </Routes>
     </>

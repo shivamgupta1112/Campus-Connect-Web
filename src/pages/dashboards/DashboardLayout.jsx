@@ -40,6 +40,7 @@ const roleNavItems = {
     Student: [
         { label: "Dashboard", icon: Home, path: "/get-started/dashboard" },
         { label: "My Courses", icon: BookOpen, path: "/get-started/dashboard" },
+        { label: "My Annotations", icon: FileText, path: "/get-started/dashboard" },
     ],
 };
 

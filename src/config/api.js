@@ -122,6 +122,9 @@ export const createCourse = (data) => courseApi.post('/', data);
 export const getNotes = (params) => noteApi.get('/', { params });
 export const uploadNote = (data) => noteApi.post('/', data, { headers: { 'Content-Type': 'multipart/form-data' } });
 export const deleteNote = (id) => noteApi.delete(`/${id}`);
+export const getMyAnnotations = () => noteApi.get('/my-annotations');
+export const getDocumentAnnotations = (id) => noteApi.get(`/${id}/annotations`);
+export const saveDocumentAnnotation = (id, data) => noteApi.post(`/${id}/annotations`, data);
 
 // User API Methods (Directors, Faculty, Students)
 export const getUsers = (params) => userApi.get('/', { params });
