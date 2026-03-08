@@ -3,7 +3,7 @@ import { Loader2, ArrowLeft, Mail } from "lucide-react";
 import { Link } from "react-router";
 import { toast } from 'react-hot-toast';
 import InteractiveInput from "../../components/ui/InteractiveInput";
-import { authApi } from "../../config/api";
+import { forgotPassword } from "../../config/api";
 
 const ForgetPassword = () => {
     const [loading, setLoading] = useState(false);
@@ -14,7 +14,7 @@ const ForgetPassword = () => {
         e.preventDefault();
         setLoading(true);
 
-        authApi.post("/forgot-password", { email })
+        forgotPassword(email)
             .then(() => {
                 setSubmitted(true);
                 toast.success("Reset link sent to your email!");
