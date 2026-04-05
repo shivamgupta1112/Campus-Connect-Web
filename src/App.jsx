@@ -8,7 +8,8 @@ import Login from "./pages/auth/Login";
 import ForgetPassword from "./pages/auth/ForgetPassword";
 import ResetPassword from "./pages/auth/ResetPassword";
 import PdfViewer from "./pages/PdfViewer";
-
+import About from "./pages/About";
+import Contact from "./pages/Contact";
 import Features from "./components/Features";
 import Footer from "./components/Footer";
 
@@ -27,25 +28,10 @@ const App = () => {
         </div>} />
 
 
-        <Route path="/about" element={<div className="bg-white">
-          <Header />
-          <main>
-            <Hero />
-          </main>
-        </div>} />
-
-        <Route path="/contact" element={<div className="bg-white">
-          <Header />
-          <main>
-            <Hero />
-          </main>
-        </div>} />
-
+        <Route path="/about" element={<><Header /><About /></>} />
+        <Route path="/contact" element={<><Header /><Contact /></>} />
         <Route path="/get-started/dashboard" element={<GetStarted />} />
-
         <Route path="/login" element={<Login />} />
-
-
         <Route path="/forgot-password" element={<div className="bg-white">
           <Header />
           <main>
