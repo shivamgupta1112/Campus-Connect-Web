@@ -3,6 +3,7 @@ import { BookOpen, FileText, Upload, Clock, Plus, Loader2, Trash2 } from "lucide
 import useAuthStore from "../../store/useAuthStore";
 import { getNotes, uploadNote, deleteNote } from "../../config/api";
 import { toast } from "react-hot-toast";
+import StudentProgressView from "./StudentProgressView";
 
 const TeacherDashboard = ({ activeItem = 'Dashboard' }) => {
     const { user } = useAuthStore();
@@ -21,6 +22,7 @@ const TeacherDashboard = ({ activeItem = 'Dashboard' }) => {
         if (activeItem === 'My Courses' || activeItem === 'Upload Notes' || activeItem === 'Dashboard') {
             fetchNotes();
         }
+        // Student Progress tab doesn't need note fetching
     }, [activeItem]);
 
     const fetchNotes = async () => {
@@ -272,6 +274,10 @@ const TeacherDashboard = ({ activeItem = 'Dashboard' }) => {
                         </div>
                     </div>
                 </div>
+            )}
+            {/* Student Progress View */}
+            {activeItem === 'Student Progress' && (
+                <StudentProgressView isTeacher={true} />
             )}
         </div>
     );

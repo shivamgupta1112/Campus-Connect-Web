@@ -152,6 +152,7 @@ export const saveDocumentAnnotation = (id, data) => noteApi.post(`/${id}/annotat
 // User API Methods (Directors, Faculty, Students)
 export const getUsers = (params) => userApi.get('/', { params });
 export const getUser = (id) => userApi.get(`/${id}`);
+export const getStudentProgress = (params) => userApi.get('/student-progress', { params });
 export const createUser = (data) => userApi.post('/', data); // Used for creating directors
 export const updateUser = (id, data) => userApi.put(`/${id}`, data);
 export const deleteUser = (id) => userApi.delete(`/${id}`);

@@ -3,6 +3,7 @@ import { Users, BookOpen, GraduationCap, FileText, TrendingUp, ClipboardList, X,
 import useAuthStore from "../../store/useAuthStore";
 import { getCourses, getUsers, updateUser, getPrograms, updateProgram } from "../../config/api";
 import { toast } from "react-hot-toast";
+import StudentProgressView from "./StudentProgressView";
 
 const CoordinatorDashboard = ({ activeItem, setActiveItem }) => {
     const { user } = useAuthStore();
@@ -187,16 +188,22 @@ const CoordinatorDashboard = ({ activeItem, setActiveItem }) => {
     return (
         <div className="space-y-6">
             {/* Welcome */}
-            <div className="bg-gradient-to-r from-purple-600 to-indigo-600 rounded-2xl p-6 text-white">
-                <h2 className="text-xl font-bold mb-1">
-                    Welcome back, {user?.name?.split(" ")[0] || "Coordinator"}!
-                </h2>
-                <p className="text-purple-100 text-sm">
-                    {user?.department ? `Managing ${user.department} Department` : "Department Coordinator Dashboard"}
-                </p>
-            </div>
+            {currentTab !== 'Student Progress' && (
+                <div className="bg-gradient-to-r from-purple-600 to-indigo-600 rounded-2xl p-6 text-white">
+                    <h2 className="text-xl font-bold mb-1">
+                        Welcome back, {user?.name?.split(" ")[0] || "Coordinator"}!
+                    </h2>
+                    <p className="text-purple-100 text-sm">
+                        {user?.department ? `Managing ${user.department} Department` : "Department Coordinator Dashboard"}
+                    </p>
+                </div>
+            )}
 
-            {currentTab === 'Dashboard' ? renderDashboardOverview() : (
+            {currentTab === 'Student Progress' && (
+                <StudentProgressView department={user?.department} />
+            )}
+
+            {currentTab !== 'Student Progress' && (currentTab === 'Dashboard' ? renderDashboardOverview() : (
                 <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
                     <div className="flex items-center justify-between p-5 border-b border-gray-100">
                         <h3 className="font-semibold text-gray-900">Department {currentTab}</h3>
@@ -320,7 +327,7 @@ const CoordinatorDashboard = ({ activeItem, setActiveItem }) => {
                         </table>
                     </div>
                 </div>
-            )}
+            ))}
 
             {/* Assign Courses Modal */}
             {isAssignModalOpen && (

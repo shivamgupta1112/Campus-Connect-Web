@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Users, Building2, GraduationCap, BookOpen, TrendingUp, UserPlus, X, Loader2, Edit2, Trash2 } from "lucide-react";
 import { createDepartment, getDepartments, createCourse, getCourses, getUsers, createUser, updateUser, deleteUser, createProgram, getPrograms, updateProgram } from "../../config/api";
 import { toast } from "react-hot-toast";
+import StudentProgressView from "./StudentProgressView";
 
 const AdminDashboard = ({ activeItem = 'Dashboard', setActiveItem }) => {
     // Stat States
@@ -521,6 +522,10 @@ const AdminDashboard = ({ activeItem = 'Dashboard', setActiveItem }) => {
                         </div>
                     </div>
                 </div>
+            )}
+
+            {activeItem === 'Student Progress' && (
+                <StudentProgressView />
             )}
 
             {/* Modals */}
