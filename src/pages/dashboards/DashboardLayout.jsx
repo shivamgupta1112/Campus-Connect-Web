@@ -23,7 +23,6 @@ const roleNavItems = {
         { label: "Dashboard", icon: Home, path: "/get-started/dashboard" },
         { label: "Users", icon: Users, path: "/get-started/dashboard" },
         { label: "Departments", icon: Building2, path: "/get-started/dashboard" },
-        { label: "Settings", icon: Settings, path: "/get-started/dashboard" },
     ],
     Coordinator: [
         { label: "Dashboard", icon: Home, path: "/get-started/dashboard" },

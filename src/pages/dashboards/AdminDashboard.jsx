@@ -1,29 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { Users, Building2, GraduationCap, BookOpen, TrendingUp, UserPlus, X, Loader2, Settings, Edit2, Trash2 } from "lucide-react";
+import { Users, Building2, GraduationCap, BookOpen, TrendingUp, UserPlus, X, Loader2, Edit2, Trash2 } from "lucide-react";
 import { createDepartment, getDepartments, createCourse, getCourses, getUsers, createUser, updateUser, deleteUser, createProgram, getPrograms, updateProgram } from "../../config/api";
 import { toast } from "react-hot-toast";
-
-const stats = [
-    { label: "Total Users", value: "1,245", icon: Users, color: "blue", change: "+12%" },
-    { label: "Departments", value: "8", icon: Building2, color: "purple", change: "+1" },
-    { label: "Active Teachers", value: "86", icon: GraduationCap, color: "emerald", change: "+5" },
-    { label: "Total Courses", value: "142", icon: BookOpen, color: "amber", change: "+18" },
-];
-
-const colorMap = {
-    blue: { bg: "bg-blue-50", text: "text-blue-600", badge: "text-blue-700 bg-blue-50" },
-    purple: { bg: "bg-purple-50", text: "text-purple-600", badge: "text-purple-700 bg-purple-50" },
-    emerald: { bg: "bg-emerald-50", text: "text-emerald-600", badge: "text-emerald-700 bg-emerald-50" },
-    amber: { bg: "bg-amber-50", text: "text-amber-600", badge: "text-amber-700 bg-amber-50" },
-};
-
-const recentUsers = [
-    { name: "Rahul Sharma", role: "Student", dept: "Computer Science", date: "2 hours ago" },
-    { name: "Priya Patel", role: "Teacher", dept: "Mathematics", date: "5 hours ago" },
-    { name: "Ankit Verma", role: "Coordinator", dept: "Electronics", date: "1 day ago" },
-    { name: "Sneha Gupta", role: "Student", dept: "Physics", date: "1 day ago" },
-    { name: "Vikram Singh", role: "Teacher", dept: "Chemistry", date: "2 days ago" },
-];
 
 const AdminDashboard = ({ activeItem = 'Dashboard', setActiveItem }) => {
     // Stat States
@@ -335,15 +313,6 @@ const AdminDashboard = ({ activeItem = 'Dashboard', setActiveItem }) => {
                                 Create Program
                             </button>
                         </div>
-
-                        <div className="mt-6 p-4 bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl text-white">
-                            <h4 className="font-semibold text-sm mb-1">System Status</h4>
-                            <p className="text-xs text-gray-400 mb-3">All services running normally</p>
-                            <div className="flex items-center gap-2">
-                                <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
-                                <span className="text-xs text-emerald-400 font-medium">Online</span>
-                            </div>
-                        </div>
                     </div>
                 </div>
             )}
@@ -551,16 +520,6 @@ const AdminDashboard = ({ activeItem = 'Dashboard', setActiveItem }) => {
                             </table>
                         </div>
                     </div>
-                </div>
-            )}
-
-            {activeItem === 'Settings' && (
-                <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden p-8 text-center">
-                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-50 mb-4">
-                        <Settings size={28} className="text-gray-400" />
-                    </div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">System Settings</h3>
-                    <p className="text-gray-500 max-w-sm mx-auto">Configuration options and environmental settings will be available here in a future update.</p>
                 </div>
             )}
 
