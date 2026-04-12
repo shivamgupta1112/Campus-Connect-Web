@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { BookOpen, FileText, Clock, TrendingUp, Download, Calendar, FolderOpen, CheckCircle2, Circle } from "lucide-react";
 import useAuthStore from "../../store/useAuthStore";
 import { getNotes, updateUser, getPrograms, getMyAnnotations } from "../../config/api";
+import AnnouncementView from "./AnnouncementView";
 
 const StudentDashboard = ({ activeItem, setActiveItem }) => {
     const { user, updateUserLocally } = useAuthStore();
@@ -341,6 +342,7 @@ const StudentDashboard = ({ activeItem, setActiveItem }) => {
         <div>
             {currentTab === 'Dashboard' && renderDashboard()}
             {currentTab === 'My Courses' && renderMyCourses()}
+            {currentTab === 'My Announcements' && <AnnouncementView />}
             {currentTab === 'My Annotations' && renderMyAnnotations()}
         </div>
     );

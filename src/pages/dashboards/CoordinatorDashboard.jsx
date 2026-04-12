@@ -4,6 +4,7 @@ import useAuthStore from "../../store/useAuthStore";
 import { getCourses, getUsers, updateUser, getPrograms, updateProgram } from "../../config/api";
 import { toast } from "react-hot-toast";
 import StudentProgressView from "./StudentProgressView";
+import AnnouncementView from "./AnnouncementView";
 
 const CoordinatorDashboard = ({ activeItem, setActiveItem }) => {
     const { user } = useAuthStore();
@@ -203,7 +204,11 @@ const CoordinatorDashboard = ({ activeItem, setActiveItem }) => {
                 <StudentProgressView department={user?.department} />
             )}
 
-            {currentTab !== 'Student Progress' && (currentTab === 'Dashboard' ? renderDashboardOverview() : (
+            {currentTab === 'Announcements' && (
+                <AnnouncementView />
+            )}
+
+            {currentTab !== 'Student Progress' && currentTab !== 'Announcements' && (currentTab === 'Dashboard' ? renderDashboardOverview() : (
                 <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
                     <div className="flex items-center justify-between p-5 border-b border-gray-100">
                         <h3 className="font-semibold text-gray-900">Department {currentTab}</h3>

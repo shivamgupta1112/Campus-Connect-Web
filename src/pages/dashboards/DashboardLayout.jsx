@@ -15,7 +15,8 @@ import {
     UserCircle,
     ChevronRight,
     ClipboardList,
-    BarChart2
+    BarChart2,
+    Megaphone
 } from "lucide-react";
 import useAuthStore from "../../store/useAuthStore";
 
@@ -25,6 +26,7 @@ const roleNavItems = {
         { label: "Users", icon: Users, path: "/get-started/dashboard" },
         { label: "Departments", icon: Building2, path: "/get-started/dashboard" },
         { label: "Student Progress", icon: BarChart2, path: "/get-started/dashboard" },
+        { label: "Announcements", icon: Megaphone, path: "/get-started/dashboard" },
     ],
     Coordinator: [
         { label: "Dashboard", icon: Home, path: "/get-started/dashboard" },
@@ -33,16 +35,19 @@ const roleNavItems = {
         { label: "Programs", icon: ClipboardList, path: "/get-started/dashboard" },
         { label: "Courses", icon: BookOpen, path: "/get-started/dashboard" },
         { label: "Student Progress", icon: BarChart2, path: "/get-started/dashboard" },
+        { label: "Announcements", icon: Megaphone, path: "/get-started/dashboard" },
     ],
     Teacher: [
         { label: "Dashboard", icon: Home, path: "/get-started/dashboard" },
         { label: "My Courses", icon: BookOpen, path: "/get-started/dashboard" },
         { label: "Upload Notes", icon: FileText, path: "/get-started/dashboard" },
         { label: "Student Progress", icon: BarChart2, path: "/get-started/dashboard" },
+        { label: "Announcements", icon: Megaphone, path: "/get-started/dashboard" },
     ],
     Student: [
         { label: "Dashboard", icon: Home, path: "/get-started/dashboard" },
         { label: "My Courses", icon: BookOpen, path: "/get-started/dashboard" },
+        { label: "My Announcements", icon: Megaphone, path: "/get-started/dashboard" },
         { label: "My Annotations", icon: FileText, path: "/get-started/dashboard" },
     ],
 };

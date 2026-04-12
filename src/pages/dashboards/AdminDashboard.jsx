@@ -3,6 +3,7 @@ import { Users, Building2, GraduationCap, BookOpen, TrendingUp, UserPlus, X, Loa
 import { createDepartment, getDepartments, createCourse, getCourses, getUsers, createUser, updateUser, deleteUser, createProgram, getPrograms, updateProgram } from "../../config/api";
 import { toast } from "react-hot-toast";
 import StudentProgressView from "./StudentProgressView";
+import AnnouncementView from "./AnnouncementView";
 
 const AdminDashboard = ({ activeItem = 'Dashboard', setActiveItem }) => {
     // Stat States
@@ -526,6 +527,10 @@ const AdminDashboard = ({ activeItem = 'Dashboard', setActiveItem }) => {
 
             {activeItem === 'Student Progress' && (
                 <StudentProgressView />
+            )}
+
+            {activeItem === 'Announcements' && (
+                <AnnouncementView />
             )}
 
             {/* Modals */}

@@ -49,6 +49,13 @@ const PROGRAM_URL =
             ? import.meta.env.VITE_PREVIEW_PROGRAM_URL
             : import.meta.env.VITE_PROD_PROGRAM_URL;
 
+const ANNOUNCEMENT_URL =
+    import.meta.env.DEV
+        ? "http://localhost:5000/api/announcements"
+        : import.meta.env.VITE_VERCEL_ENV === "preview"
+            ? import.meta.env.VITE_PREVIEW_ANNOUNCEMENT_URL
+            : import.meta.env.VITE_PROD_ANNOUNCEMENT_URL;
+
 const attachToken = (config) => {
     const token = localStorage.getItem('campusconnect-token');
     if (token) {
@@ -65,6 +72,7 @@ const departmentApi = axios.create({ baseURL: DEPARTMENT_URL, withCredentials: t
 const courseApi = axios.create({ baseURL: COURSE_URL, withCredentials: true });
 const noteApi = axios.create({ baseURL: NOTE_URL, withCredentials: true });
 const programApi = axios.create({ baseURL: PROGRAM_URL, withCredentials: true });
+const announcementApi = axios.create({ baseURL: ANNOUNCEMENT_URL, withCredentials: true });
 
 // Attach token interceptor
 authApi.interceptors.request.use(attachToken);
@@ -74,6 +82,7 @@ departmentApi.interceptors.request.use(attachToken);
 courseApi.interceptors.request.use(attachToken);
 noteApi.interceptors.request.use(attachToken);
 programApi.interceptors.request.use(attachToken);
+announcementApi.interceptors.request.use(attachToken);
 
 // Logging Interceptors (Dev only)
 if (import.meta.env.DEV) {
@@ -156,6 +165,13 @@ export const getStudentProgress = (params) => userApi.get('/student-progress', {
 export const createUser = (data) => userApi.post('/', data); // Used for creating directors
 export const updateUser = (id, data) => userApi.put(`/${id}`, data);
 export const deleteUser = (id) => userApi.delete(`/${id}`);
+
+// Announcement API Methods
+export const getAnnouncements = () => announcementApi.get('/');
+export const getMyAnnouncements = () => announcementApi.get('/mine');
+export const getAnnouncementMeta = (params) => announcementApi.get('/meta', { params });
+export const createAnnouncement = (data) => announcementApi.post('/', data);
+export const deleteAnnouncement = (id) => announcementApi.delete(`/${id}`);
 
 const api = {
     auth: {

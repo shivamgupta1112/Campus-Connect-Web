@@ -4,6 +4,7 @@ import useAuthStore from "../../store/useAuthStore";
 import { getNotes, uploadNote, deleteNote } from "../../config/api";
 import { toast } from "react-hot-toast";
 import StudentProgressView from "./StudentProgressView";
+import AnnouncementView from "./AnnouncementView";
 
 const TeacherDashboard = ({ activeItem = 'Dashboard' }) => {
     const { user } = useAuthStore();
@@ -22,7 +23,7 @@ const TeacherDashboard = ({ activeItem = 'Dashboard' }) => {
         if (activeItem === 'My Courses' || activeItem === 'Upload Notes' || activeItem === 'Dashboard') {
             fetchNotes();
         }
-        // Student Progress tab doesn't need note fetching
+        // Student Progress and Announcements tabs don't need note fetching
     }, [activeItem]);
 
     const fetchNotes = async () => {
@@ -278,6 +279,10 @@ const TeacherDashboard = ({ activeItem = 'Dashboard' }) => {
             {/* Student Progress View */}
             {activeItem === 'Student Progress' && (
                 <StudentProgressView isTeacher={true} />
+            )}
+            {/* Announcements View */}
+            {activeItem === 'Announcements' && (
+                <AnnouncementView />
             )}
         </div>
     );
