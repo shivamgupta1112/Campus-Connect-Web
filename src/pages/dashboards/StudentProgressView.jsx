@@ -345,9 +345,17 @@ const StudentProgressView = ({ department, isTeacher: isTeacherProp }) => {
         setLoading(true);
         setError(null);
         try {
-            // Teachers: backend auto-scopes; just send request (no extra params needed)
-            // Admin/Coordinator: pass department param if available
-            const params = !isTeacher && effectiveDept ? { department: effectiveDept } : {};
+            let params = {};
+            if (isTeacher) {
+                // Teacher: backend auto-scopes by their courses - send no params
+                params = {};
+            } else if (user?.role === 'Admin') {
+                // Admin: fetch all students globally - no department filter
+                params = {};
+            } else if (effectiveDept) {
+                // Coordinator: scope to their department
+                params = { department: effectiveDept };
+            }
             const res = await getStudentProgress(params);
             if (res.data?.success) {
                 setStudents(res.data.data);

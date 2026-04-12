@@ -4,6 +4,7 @@ import { createDepartment, getDepartments, createCourse, getCourses, getUsers, c
 import { toast } from "react-hot-toast";
 import StudentProgressView from "./StudentProgressView";
 import AnnouncementView from "./AnnouncementView";
+import UserManagementView from "./UserManagementView";
 
 const AdminDashboard = ({ activeItem = 'Dashboard', setActiveItem }) => {
     // Stat States
@@ -320,71 +321,12 @@ const AdminDashboard = ({ activeItem = 'Dashboard', setActiveItem }) => {
             )}
 
             {activeItem === 'Users' && (
-                <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
-                    <div className="flex items-center justify-between p-5 border-b border-gray-100">
-                        <h3 className="font-semibold text-gray-900">All System Users</h3>
-                        <button
-                            onClick={handleOpenCreateUser}
-                            className="text-sm bg-blue-50 text-blue-600 px-4 py-2 rounded-xl hover:bg-blue-100 font-medium flex items-center gap-2 transition-colors"
-                        >
-                            <UserPlus size={16} />
-                            Add User
-                        </button>
-                    </div>
-                    <div className="overflow-x-auto">
-                        <table className="w-full">
-                            <thead className="bg-gray-50">
-                                <tr>
-                                    <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">User</th>
-                                    <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Email</th>
-                                    <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Role</th>
-                                    <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Department</th>
-                                    <th className="text-right px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-gray-50">
-                                {usersList.map((user) => (
-                                    <tr key={user._id} className="hover:bg-gray-50 transition-colors">
-                                        <td className="px-5 py-3.5"><span className="text-sm font-medium text-gray-900">{user.name}</span></td>
-                                        <td className="px-5 py-3.5"><span className="text-sm text-gray-600">{user.contactInfo?.email}</span></td>
-                                        <td className="px-5 py-3.5">
-                                            <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium 
-                                                ${user.role === 'Admin' ? 'bg-red-50 text-red-700 border border-red-100' :
-                                                    user.role === 'Coordinator' ? 'bg-purple-50 text-purple-700 border border-purple-100' :
-                                                        user.role === 'Teacher' ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' :
-                                                            'bg-blue-50 text-blue-700 border border-blue-100'
-                                                }`}>
-                                                {user.role}
-                                            </span>
-                                        </td>
-                                        <td className="px-5 py-3.5"><span className="text-sm text-gray-600">{user.department || "-"}</span></td>
-                                        <td className="px-5 py-3.5 text-right">
-                                            <div className="flex justify-end gap-2">
-                                                <button
-                                                    onClick={() => handleOpenEditUser(user)}
-                                                    className="p-1.5 text-blue-600 hover:bg-blue-50 rounded"
-                                                    title="Edit User"
-                                                >
-                                                    <Edit2 size={16} />
-                                                </button>
-                                                <button
-                                                    onClick={() => handleDeleteUser(user._id)}
-                                                    className="p-1.5 text-red-600 hover:bg-red-50 rounded"
-                                                    title="Delete User"
-                                                >
-                                                    <Trash2 size={16} />
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))}
-                                {usersList.length === 0 && (
-                                    <tr><td colSpan="4" className="px-5 py-8 text-center text-sm text-gray-500">No users found.</td></tr>
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+                <UserManagementView
+                    usersList={usersList}
+                    departmentsList={departmentsList}
+                    programsList={programsList}
+                    onRefresh={fetchData}
+                />
             )}
 
             {activeItem === 'Departments' && (
