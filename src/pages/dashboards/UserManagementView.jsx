@@ -1,10 +1,10 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
     UserPlus, Upload, Download, Edit2, Trash2, X, Loader2,
     GraduationCap, BookOpen, Users, CheckCircle2,
     AlertTriangle, FileSpreadsheet, Search
 } from "lucide-react";
-import { createUser, updateUser, deleteUser } from "../../config/api";
+import { createUser, updateUser, deleteUser, getPrograms, getCourses } from "../../config/api";
 import { toast } from "react-hot-toast";
 
 // ─── Tab Config (Admin excluded — Admin accounts managed separately for security) ──
@@ -18,8 +18,8 @@ const TABS = [
 // Format: headers row, then VALIDATION HINTS row (prefixed with #), then sample row
 const CSV_TEMPLATES = {
     Student: {
-        headers: ["name", "email", "phone", "password", "department", "program", "batch"],
-        hints: ["Full name (required)", "Valid email (required)", "10-digit number", "Min 8 chars, 1 uppercase, 1 number (required)", "Exact dept name", "Exact program name", "4-digit year e.g. 2023"],
+        headers: ["name", "email", "phone", "password", "department", "program", "semester", "batch", "studentId", "section"],
+        hints: ["Full name (required)", "Valid email (required)", "10-digit number", "Min 8 chars (required)", "Exact dept name", "Exact program name e.g. B.Tech", "Semester number 1-10 (required)", "e.g. 2023-2027", "Student roll number", "A or B"],
         sample: [],
     },
     Teacher: {
@@ -78,7 +78,13 @@ const buildPayload = (row, role) => {
         department: row.department || "",
     };
     if (role === "Student") {
-        base.studentDetails = { program: row.program || "", batch: row.batch || "" };
+        base.studentDetails = {
+            program:   row.program   || "",
+            batch:     row.batch     || "",
+            semester:  row.semester  ? Number(row.semester) : undefined,
+            studentId: row.studentId || "",
+            section:   row.section   || "",
+        };
     }
     if (role === "Teacher" || role === "Coordinator") {
         base.facultyDetails = { designation: row.designation || "", specialization: row.specialization || "" };
@@ -122,7 +128,7 @@ const UserManagementView = ({ usersList, departmentsList, programsList, onRefres
         return {
             name: "", email: "", phone: "", password: "", role,
             department: "",
-            studentDetails: { program: "", batch: "" },
+            studentDetails: { program: "", semester: "", batch: "", studentId: "", section: "" },
             facultyDetails: { designation: "", specialization: "" },
         };
     }
@@ -151,7 +157,13 @@ const UserManagementView = ({ usersList, departmentsList, programsList, onRefres
             name: u.name, email: u.contactInfo?.email || "",
             phone: u.contactInfo?.phone || "", password: "",
             role: u.role, department: u.department || "",
-            studentDetails: u.studentDetails || { program: "", batch: "" },
+            studentDetails: {
+                program:   u.studentDetails?.program   || "",
+                semester:  u.studentDetails?.semester  ?? "",
+                batch:     u.studentDetails?.batch     || "",
+                studentId: u.studentDetails?.studentId || "",
+                section:   u.studentDetails?.section   || "",
+            },
             facultyDetails: u.facultyDetails || { designation: "", specialization: "" },
         });
         setIsFormOpen(true);
@@ -164,11 +176,22 @@ const UserManagementView = ({ usersList, departmentsList, programsList, onRefres
             if (isEditMode) {
                 const data = { ...form };
                 if (!data.password) delete data.password;
+                if (data.role === 'Student' && data.studentDetails?.semester) {
+                    data.studentDetails.semester = Number(data.studentDetails.semester);
+                }
                 await updateUser(editingId, data);
                 toast.success("User updated!");
             } else {
-                await createUser(form);
-                toast.success("User created!");
+                // Build payload with proper types
+                const payload = {
+                    ...form,
+                    studentDetails: form.role === 'Student' ? {
+                        ...form.studentDetails,
+                        semester: form.studentDetails.semester ? Number(form.studentDetails.semester) : undefined,
+                    } : form.studentDetails,
+                };
+                await createUser(payload);
+                toast.success(`${form.role} created! Courses will be auto-assigned when they complete profile setup.`);
             }
             setIsFormOpen(false);
             onRefresh();
@@ -349,8 +372,11 @@ const UserManagementView = ({ usersList, departmentsList, programsList, onRefres
                                 <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Department</th>
                                 {activeTab === "Student" && <>
                                     <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Program</th>
+                                    <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Sem</th>
                                     <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Batch</th>
-                                </>}
+                                    <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Student ID</th>
+                                </>
+                                }
                                 {(activeTab === "Teacher" || activeTab === "Coordinator") && <>
                                     <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Designation</th>
                                     <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Specialization</th>
@@ -374,7 +400,13 @@ const UserManagementView = ({ usersList, departmentsList, programsList, onRefres
                                     <td className="px-5 py-3.5 text-sm text-gray-600">{u.department || "—"}</td>
                                     {activeTab === "Student" && <>
                                         <td className="px-5 py-3.5 text-sm text-gray-600">{u.studentDetails?.program || "—"}</td>
+                                        <td className="px-5 py-3.5 text-sm">
+                                            {u.studentDetails?.semester
+                                                ? <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-blue-50 text-blue-700">Sem {u.studentDetails.semester}</span>
+                                                : <span className="text-gray-400">—</span>}
+                                        </td>
                                         <td className="px-5 py-3.5 text-sm text-gray-600">{u.studentDetails?.batch || "—"}</td>
+                                        <td className="px-5 py-3.5 text-sm text-gray-500 font-mono text-xs">{u.studentDetails?.studentId || "—"}</td>
                                     </>}
                                     {(activeTab === "Teacher" || activeTab === "Coordinator") && <>
                                         <td className="px-5 py-3.5 text-sm text-gray-600">{u.facultyDetails?.designation || "—"}</td>
@@ -471,23 +503,66 @@ const UserManagementView = ({ usersList, departmentsList, programsList, onRefres
                             {/* Student-specific fields */}
                             {form.role === "Student" && (
                                 <div className="grid grid-cols-2 gap-4">
+                                    {/* Program */}
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">Program</label>
-                                        <select value={form.studentDetails.program}
-                                            onChange={e => setForm({ ...form, studentDetails: { ...form.studentDetails, program: e.target.value } })}
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Program *</label>
+                                        <select required value={form.studentDetails.program}
+                                            onChange={e => setForm({ ...form, studentDetails: { ...form.studentDetails, program: e.target.value, semester: '' } })}
                                             className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400">
-                                            <option value="">Select program</option>
+                                            <option value="">{form.department ? 'Select program' : 'Select dept first'}</option>
                                             {programsList
                                                 .filter(p => !form.department || p.department === form.department)
                                                 .map(p => <option key={p._id} value={p.name}>{p.name}</option>)}
                                         </select>
                                     </div>
+                                    {/* Semester */}
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Semester *</label>
+                                        <select required value={form.studentDetails.semester}
+                                            onChange={e => setForm({ ...form, studentDetails: { ...form.studentDetails, semester: e.target.value } })}
+                                            disabled={!form.studentDetails.program}
+                                            className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 disabled:opacity-50">
+                                            <option value="">{form.studentDetails.program ? 'Select semester' : 'Select program first'}</option>
+                                            {Array.from({ length: 10 }, (_, i) => i + 1).map(s => (
+                                                <option key={s} value={s}>Semester {s}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    {/* Student ID */}
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Student ID</label>
+                                        <input value={form.studentDetails.studentId}
+                                            onChange={e => setForm({ ...form, studentDetails: { ...form.studentDetails, studentId: e.target.value } })}
+                                            placeholder="e.g. CSE2023001"
+                                            className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400" />
+                                    </div>
+                                    {/* Batch */}
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-1">Batch (Year)</label>
                                         <input value={form.studentDetails.batch}
                                             onChange={e => setForm({ ...form, studentDetails: { ...form.studentDetails, batch: e.target.value } })}
-                                            placeholder="e.g. 2023" className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400" />
+                                            placeholder="e.g. 2023-2027"
+                                            className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400" />
                                     </div>
+                                    {/* Section */}
+                                    <div className="col-span-2">
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Section</label>
+                                        <select value={form.studentDetails.section}
+                                            onChange={e => setForm({ ...form, studentDetails: { ...form.studentDetails, section: e.target.value } })}
+                                            className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400">
+                                            <option value="">Select section (optional)</option>
+                                            {['A', 'B', 'C', 'D'].map(s => <option key={s} value={s}>Section {s}</option>)}
+                                        </select>
+                                    </div>
+                                    {/* Course preview info */}
+                                    {form.studentDetails.semester && form.studentDetails.program && form.department && (
+                                        <div className="col-span-2 flex items-start gap-2 py-2.5 px-3 bg-blue-50 border border-blue-100 rounded-xl">
+                                            <BookOpen size={14} className="text-blue-500 mt-0.5 shrink-0" />
+                                            <p className="text-xs text-blue-700">
+                                                Courses for <strong>{form.studentDetails.program}</strong> Sem {form.studentDetails.semester} will be <strong>auto-assigned</strong> when this student completes their profile setup.
+                                            </p>
+                                        </div>
+                                    )}
                                 </div>
                             )}
 

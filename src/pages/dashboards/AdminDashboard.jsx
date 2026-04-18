@@ -33,7 +33,7 @@ const AdminDashboard = ({ activeItem = 'Dashboard', setActiveItem }) => {
 
     // Form Data
     const [deptForm, setDeptForm] = useState({ name: "", description: "" });
-    const [courseForm, setCourseForm] = useState({ name: "", code: "", department: "", program: "", credits: 3 });
+    const [courseForm, setCourseForm] = useState({ name: "", code: "", department: "", program: "", credits: 3, semester: 1 });
     const [programForm, setProgramForm] = useState({ name: "", department: "", description: "" });
     const [userForm, setUserForm] = useState({ name: "", email: "", phone: "", role: "Student", password: "", department: "", studentDetails: { program: "", batch: "" }, facultyDetails: { designation: "", specialization: "" } });
 
@@ -100,7 +100,7 @@ const AdminDashboard = ({ activeItem = 'Dashboard', setActiveItem }) => {
             if (res.data.success) {
                 toast.success("Course created!");
                 setIsCourseModalOpen(false);
-                setCourseForm({ name: "", code: "", department: "", program: "", credits: 3 });
+                setCourseForm({ name: "", code: "", department: "", program: "", credits: 3, semester: 1 });
                 fetchData();
             }
         } catch (error) {
@@ -665,6 +665,10 @@ const AdminDashboard = ({ activeItem = 'Dashboard', setActiveItem }) => {
                                 </select>
                             </div>
                             <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Semester</label>
+                                <input required type="number" value={courseForm.semester} onChange={(e) => setCourseForm({ ...courseForm, semester: e.target.value })} className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-blue-500 focus:border-blue-500" min="1" max="10" placeholder="e.g. 3" />
+                            </div>
+                            <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">Credits</label>
                                 <input type="number" value={courseForm.credits} onChange={(e) => setCourseForm({ ...courseForm, credits: e.target.value })} className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-blue-500 focus:border-blue-500" min="1" max="10" />
                             </div>
@@ -724,7 +728,7 @@ const AdminDashboard = ({ activeItem = 'Dashboard', setActiveItem }) => {
                                 >
                                     {coursesList.map(course => (
                                         <option key={course._id} value={course.name} className="py-1">
-                                            {course.name} ({course.code})
+                                            {course.name} ({course.code}) — {course.program} Sem {course.semester}
                                         </option>
                                     ))}
                                 </select>

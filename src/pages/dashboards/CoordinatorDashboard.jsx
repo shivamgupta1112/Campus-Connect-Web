@@ -11,6 +11,7 @@ const CoordinatorDashboard = ({ activeItem, setActiveItem }) => {
 
     // States
     const [courses, setCourses] = useState([]);
+    const [allCourses, setAllCourses] = useState([]); // all courses, unfiltered — used in assign modal
     const [teachers, setTeachers] = useState([]);
     const [students, setStudents] = useState([]);
     const [programs, setPrograms] = useState([]);
@@ -33,14 +34,16 @@ const CoordinatorDashboard = ({ activeItem, setActiveItem }) => {
     const fetchDashboardData = async () => {
         try {
             setLoading(true);
-            const [coursesRes, teachersRes, studentsRes, programsRes] = await Promise.all([
+            const [coursesRes, allCoursesRes, teachersRes, studentsRes, programsRes] = await Promise.all([
                 getCourses({ department: user.department }),
+                getCourses(), // all courses for assign modal
                 getUsers({ role: 'Teacher', department: user.department }),
                 getUsers({ role: 'Student', department: user.department }),
                 getPrograms({ department: user.department })
             ]);
 
             if (coursesRes.data?.success) setCourses(coursesRes.data.data);
+            if (allCoursesRes.data?.success) setAllCourses(allCoursesRes.data.data);
             if (teachersRes.data?.success) setTeachers(teachersRes.data.data);
             if (studentsRes.data?.success) setStudents(studentsRes.data.data);
             if (programsRes.data?.success) setPrograms(programsRes.data.data);
@@ -165,7 +168,7 @@ const CoordinatorDashboard = ({ activeItem, setActiveItem }) => {
                             <button onClick={() => setActiveItem('Students')} className="text-sm text-purple-600 hover:text-purple-700 font-medium">View All</button>
                         )}
                     </div>
-                    <div className="divide-y divide-gray-50">
+                        <div className="divide-y divide-gray-50">
                         {students.slice(0, 5).map(s => (
                             <div key={s._id} className="p-5 flex items-center justify-between hover:bg-gray-50 transition-colors">
                                 <div className="flex items-center gap-3">
@@ -174,9 +177,18 @@ const CoordinatorDashboard = ({ activeItem, setActiveItem }) => {
                                     </div>
                                     <div>
                                         <p className="font-medium text-sm text-gray-900">{s.name}</p>
-                                        <p className="text-xs text-gray-500">{s.studentDetails?.program || "Program N/A"} • {s.studentDetails?.batch || "Batch N/A"}</p>
+                                        <p className="text-xs text-gray-500">
+                                            {s.studentDetails?.program || "Program N/A"}
+                                            {s.studentDetails?.semester ? ` • Sem ${s.studentDetails.semester}` : ''}
+                                            {s.studentDetails?.batch ? ` • ${s.studentDetails.batch}` : ''}
+                                        </p>
                                     </div>
                                 </div>
+                                {s.studentDetails?.semester && (
+                                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-100">
+                                        Sem {s.studentDetails.semester}
+                                    </span>
+                                )}
                             </div>
                         ))}
                         {students.length === 0 && <div className="p-8 text-center text-sm text-gray-500">No students found.</div>}
@@ -238,7 +250,9 @@ const CoordinatorDashboard = ({ activeItem, setActiveItem }) => {
                                             <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Student</th>
                                             <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Email</th>
                                             <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Program</th>
+                                            <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Sem</th>
                                             <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Batch</th>
+                                            <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Student ID</th>
                                         </>
                                     )}
                                     {currentTab === 'Programs' && (
@@ -283,14 +297,27 @@ const CoordinatorDashboard = ({ activeItem, setActiveItem }) => {
                                 {/* Students View */}
                                 {currentTab === 'Students' && students.map((student) => (
                                     <tr key={student._id} className="hover:bg-gray-50 transition-colors">
-                                        <td className="px-5 py-3.5"><span className="text-sm font-medium text-gray-900">{student.name}</span></td>
+                                        <td className="px-5 py-3.5">
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-7 h-7 rounded-full bg-blue-50 text-blue-700 flex items-center justify-center text-xs font-bold">
+                                                    {student.name.charAt(0)}
+                                                </div>
+                                                <span className="text-sm font-medium text-gray-900">{student.name}</span>
+                                            </div>
+                                        </td>
                                         <td className="px-5 py-3.5"><span className="text-sm text-gray-600">{student.contactInfo?.email}</span></td>
-                                        <td className="px-5 py-3.5"><span className="text-sm text-gray-600">{student.studentDetails?.program || "N/A"}</span></td>
-                                        <td className="px-5 py-3.5"><span className="text-sm text-gray-600">{student.studentDetails?.batch || "N/A"}</span></td>
+                                        <td className="px-5 py-3.5"><span className="text-sm text-gray-600">{student.studentDetails?.program || '—'}</span></td>
+                                        <td className="px-5 py-3.5">
+                                            {student.studentDetails?.semester
+                                                ? <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-blue-50 text-blue-700">Sem {student.studentDetails.semester}</span>
+                                                : <span className="text-gray-400">—</span>}
+                                        </td>
+                                        <td className="px-5 py-3.5"><span className="text-sm text-gray-600">{student.studentDetails?.batch || '—'}</span></td>
+                                        <td className="px-5 py-3.5"><span className="text-sm text-gray-500 font-mono text-xs">{student.studentDetails?.studentId || '—'}</span></td>
                                     </tr>
                                 ))}
                                 {currentTab === 'Students' && students.length === 0 && !loading && (
-                                    <tr><td colSpan="4" className="px-5 py-8 text-center text-sm text-gray-500">No students found.</td></tr>
+                                    <tr><td colSpan="6" className="px-5 py-8 text-center text-sm text-gray-500">No students found.</td></tr>
                                 )}
 
                                 {/* Programs View */}
@@ -383,9 +410,10 @@ const CoordinatorDashboard = ({ activeItem, setActiveItem }) => {
                                     value={selectedCourses}
                                     onChange={handleCourseSelection}
                                 >
-                                    {courses.map(course => (
+                                {/* Use allCourses so cross-dept courses like Circuit Theory show up */}
+                                    {allCourses.map(course => (
                                         <option key={course._id} value={course.name} className="py-1">
-                                            {course.name} ({course.code})
+                                            {course.name} ({course.code}) — {course.program} Sem {course.semester}
                                         </option>
                                     ))}
                                 </select>

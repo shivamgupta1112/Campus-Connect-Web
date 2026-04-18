@@ -397,6 +397,7 @@ const StudentProgressView = ({ department, isTeacher: isTeacherProp }) => {
             let av, bv;
             if (sortField === "name") { av = a.name; bv = b.name; }
             else if (sortField === "program") { av = a.studentDetails?.program || ""; bv = b.studentDetails?.program || ""; }
+            else if (sortField === "semester") { av = a.studentDetails?.semester || 0; bv = b.studentDetails?.semester || 0; }
             else if (sortField === "batch") { av = a.studentDetails?.batch || ""; bv = b.studentDetails?.batch || ""; }
             else if (sortField === "progress") { av = a.overall.completionPercentage; bv = b.overall.completionPercentage; }
             else if (sortField === "courses") { av = a.enrolledCourses.length; bv = b.enrolledCourses.length; }
@@ -562,6 +563,11 @@ const StudentProgressView = ({ department, isTeacher: isTeacherProp }) => {
                                     </button>
                                 </th>
                                 <th className="text-left px-5 py-3.5">
+                                    <button onClick={() => toggleSort("semester")} className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 uppercase tracking-wider hover:text-gray-800 transition-colors">
+                                        Sem <SortIcon field="semester" />
+                                    </button>
+                                </th>
+                                <th className="text-left px-5 py-3.5">
                                     <button onClick={() => toggleSort("batch")} className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 uppercase tracking-wider hover:text-gray-800 transition-colors">
                                         Batch <SortIcon field="batch" />
                                     </button>
@@ -588,7 +594,7 @@ const StudentProgressView = ({ department, isTeacher: isTeacherProp }) => {
                         <tbody>
                             {filtered.length === 0 ? (
                                 <tr>
-                                    <td colSpan={8} className="py-16 text-center">
+                                    <td colSpan={9} className="py-16 text-center">
                                         <GraduationCap size={48} className="mx-auto text-gray-200 mb-3" />
                                         <p className="text-gray-400 text-sm font-medium">No students found matching your filters.</p>
                                     </td>
@@ -619,6 +625,14 @@ const StudentProgressView = ({ department, isTeacher: isTeacherProp }) => {
                                             <td className="px-5 py-4">
                                                 {student.studentDetails?.program
                                                     ? <span className="inline-flex items-center px-2 py-0.5 rounded-lg text-xs font-medium bg-violet-50 text-violet-700 border border-violet-100">{student.studentDetails.program}</span>
+                                                    : <span className="text-xs text-gray-400">—</span>
+                                                }
+                                            </td>
+
+                                            {/* Semester */}
+                                            <td className="px-5 py-4">
+                                                {student.studentDetails?.semester
+                                                    ? <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-100">Sem {student.studentDetails.semester}</span>
                                                     : <span className="text-xs text-gray-400">—</span>
                                                 }
                                             </td>
